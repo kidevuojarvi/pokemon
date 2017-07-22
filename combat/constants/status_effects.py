@@ -1,12 +1,49 @@
-from typing import List
 from Pokemon import Pokemon
+from random import randint
+from combat.event import Event, EventType
 
-class Event:
+
+class StatusEffect:
+    """
+    Status effect on a pokemon. Has turn count and event emitter and handler
+    """
     def __init__(self):
-        self.__callfunction = None
+        self.__turns = 0
+
+    def emit(self, affected: Pokemon) -> Event:
+        raise NotImplementedError("Not implemented")
+
+    def handle(self, event: Event):
+        raise NotImplementedError("Not implemented")
+
+    @property
+    def turns(self):
+        return self.__turns
+
+    def increment_turns(self):
+        self.__turns += 1
 
 
+class SleepEffect(StatusEffect):
+    def __init__(self, max_turns=randint(1, 3)):
+        super().__init__()
+        self.__max_turns = max_turns
 
+    def handle(self, event: Event):
+        if event.type() == EventType.POKEMON_ATTACKS:
+            pass
+            # TODO: Prevent pokemon from doing anything except sleep talk, switch etc.
+
+    def emit(self, affected: Pokemon):
+        # TODO: Actual event data implementation
+        if self.turns > self.__max_turns:
+            call = lambda: affected.remove_nonvol_status()
+        else:
+            call = lambda: None
+        return Event(EventType.STATUS_REMOVED, call)
+
+
+# Just for copying maths from
 def burn_event(affected: Pokemon):
     """
     Affected pokemon loses 1/16 of it's max HP at the end of turn

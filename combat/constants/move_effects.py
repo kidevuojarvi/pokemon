@@ -1,38 +1,70 @@
-from typing import List, Callable
+from random import random
+from combat.constants.status_effects import *
+from combat.combat import Combat
 from Pokemon import Pokemon
-from random import randint
 
-class Move:
-    def __init__(self, name: str, power: int, accuracy: int, type: List[str],
-                 category: str, contact: bool, effects: List[Callable]):
-        self.__name = name
-        self.__power = power
-        self.__accuracy = accuracy
-        self.__type = type
-        self.__category = category
-        self.__contact = contact
-        self.__effects = effects
 
-    def get_name(self):
-        return self.__name
+class MoveEffect:
+    """
+    Instantiate this for a move.
+    For example, a move has a chance to paralyze the target -> Make paralyze effect with a chance
+    """
+    def __init__(self, effect: MoveInflictEffect, chance: float=None):
+        self.__chance = chance
+        self.__effect = effect
 
-    def get_power(self):
-        return self.__power
+    @property
+    def chance(self):
+        return self.__chance
 
-    def get_accuracy(self):
-        return self.__accuracy
+    @chance.setter
+    def chance(self, val):
+        self.__chance = val
 
-    def get_type(self):
-        return self.__type
+    @property
+    def effect(self):
+        return self.__effect
 
-    def get_category(self):
-        return self.__category
+    def affect(self, attacker: Pokemon, defender: Pokemon, world: Combat):
+        roll = random.random
+        if self.chance is None or roll > self.chance:
+            self.__effect.affect(attacker, defender, world)
 
-    def get_contact(self):
-        return self.__contact
 
-    def get_effects(self):
-        return self.__effects
+class MoveInflictEffect:
+    """
+    The inflicted effect on the pokemon(s).
+    Child classes are settable on Pokemon class as volatile or nonvolatile statuses.
+    """
+    def move_text(self):
+        raise NotImplementedError("Not implemented")
+
+    def affect(self, attacker: Pokemon, defender: Pokemon, world: Combat):
+        raise NotImplementedError("Not implemented")
+
+
+class Sleep(MoveInflictEffect):
+    """
+    Sleep status
+    """
+    def __init__(self):
+        super().__init__()
+
+    @staticmethod
+    def move_text(self):
+        return "Puts the target to sleep"
+
+    def affect(self, attacker: Pokemon, defender: Pokemon, world: Combat):
+        if defender.no_nonvolatile_status():
+            defender.set_nonvol_status(SleepEffect())
+
+"""
+def sleep_chance(attacker: Pokemon, defender: Pokemon, chance: int):
+    if defender.get_nonvol_status() != None:
+        return
+    check = randint(0, 100)
+    if check < chance:
+        defender.set_nonvol_status(("sleep", 0))
 
 
 def burn_chance(attacker: Pokemon, defender: Pokemon, chance: int):
@@ -125,3 +157,4 @@ def leech_seed(attacker: Pokemon, defender: Pokemon):
     if "leech_seed" in defender.get_volatile_statuses():
         return
     defender.add_volatile_status("leech_seed")
+"""

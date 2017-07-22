@@ -1,6 +1,9 @@
 from Pokemon import Pokemon
 from Game import Game
 
+class Combat:
+    pass
+
 def combat(trainer, opponent):
     battle_ended = False
     battle_won = False

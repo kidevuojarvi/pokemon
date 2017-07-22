@@ -1,4 +1,5 @@
 from typing import List, Tuple, Dict
+from combat.constants.status_effects import StatusEffect
 from random import randint
 from math import floor
 from readdata import INDEXDATA, NATUREDATA
@@ -19,7 +20,7 @@ class Pokemon:
         self.__hp = self.get_max_hp()
         self.__exp = 1
         self.__moves = []
-        self.__vol_statuses = {}
+        self.__vol_statuses = []
         self.__evolve_level = data["evolve_level"]
         self.__evolution = data["evolution"]
 
@@ -95,22 +96,20 @@ class Pokemon:
     def get_volatile_statuses(self) -> Dict[str, int]:
         return self.__vol_statuses
 
-    # Setters
-    def set_nonvol_status(self, new_status: Tuple[str, int]):
-        # TODO: Include turns
+    def no_nonvolatile_status(self) -> bool:
+        return self.__nonvol_status is not None
+
+    def set_nonvol_status(self, new_status: StatusEffect):
         self.__nonvol_status = new_status
 
-    def add_volatile_status(self, new_status: str, duration: int=None):
-        self.__vol_statuses[new_status] = duration
+    def add_volatile_status(self, new_status: StatusEffect):
+        self.__vol_statuses.append(new_status)
 
-    def decrease_volatile_status_counter(self, status: str):
-        self.__vol_statuses[status] -= 1
-        if self.__vol_statuses[status] <= 0:
-            self.remove_volatile_status(status)
+    def remove_volatile_status(self, to_be_removed: StatusEffect):
+        self.__vol_statuses.remove(to_be_removed)
 
-    def remove_volatile_status(self, to_be_removed: str):
-        if to_be_removed in self.__vol_statuses:
-            del self.__vol_statuses[to_be_removed]
+    def remove_nonvol_status(self):
+        self.__nonvol_status = None
 
     def damage(self, amount: int) -> int:
         """
