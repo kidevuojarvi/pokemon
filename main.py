@@ -1,4 +1,5 @@
 from Pokemon import Pokemon
+from Game import Game
 
 def combat(trainer, opponent):
     battle_ended = False
@@ -28,7 +29,7 @@ def combat(trainer, opponent):
     return battle_won
 
 def main():
-    pass
+    game = Game()
 
 
 main()

@@ -6,9 +6,11 @@ WIDTH = 400
 HEIGHT = 400
 
 class GUI:
-    def __init__(self):
+    def __init__(self, world):
         self.__mw = Tk()
         self.__mw.title("Pokemon")
+
+        self.__parent = world
 
         self.__red_image = PhotoImage(file="Red.png")
         self.__block_image = PhotoImage(file="block.png")
@@ -39,25 +41,41 @@ class GUI:
             self.__mw.destroy()
 
         elif event.keysym == "Up":
-            self.__y -= 10
-            for block in self.__blocks:
-                self.__canvas.move(block, 0, 10)
+            if not self.__parent.is_passable(self.__x, self.__y - 1):
+                self.__y -= 1
+                for block in self.__blocks:
+                    self.__canvas.move(block, 0, 10)
+            else:
+                pass
+                #TODO: bump-sound
 
         elif event.keysym == "Down":
-            self.__y += 10
-            for block in self.__blocks:
-                self.__canvas.move(block, 0, -10)
+            if not self.__parent.is_passable(self.__x, self.__y + 1):
+                self.__y += 1
+                for block in self.__blocks:
+                    self.__canvas.move(block, 0, -10)
+            else:
+                pass
+                #TODO: bump-sound
+
 
         elif event.keysym == "Right":
-            self.__x += 10
-            for block in self.__blocks:
-                self.__canvas.move(block, -10, 0)
+            if not self.__parent.is_passable(self.__x + 1, self.__y):
+                self.__x += 1
+                for block in self.__blocks:
+                    self.__canvas.move(block, -10, 0)
+            else:
+                pass
+                #TODO: bump-sound
 
         elif event.keysym == "Left":
-            self.__x -= 10
-            for block in self.__blocks:
-                self.__canvas.move(block, 10, 0)
-
+            if not self.__parent.is_passable(self.__x - 1, self.__y):
+                self.__x -= 1
+                for block in self.__blocks:
+                    self.__canvas.move(block, 10, 0)
+            else:
+                pass
+                #TODO: bump-sound
 
     def ticker(self):
         self.up()
@@ -74,8 +92,8 @@ class GUI:
 
 
 
-def main():
-    GUI()
+#def main():
+#    GUI()
 
 
-main()
+#main()
