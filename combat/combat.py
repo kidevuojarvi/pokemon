@@ -1,6 +1,3 @@
-from Pokemon import Pokemon
-from Game import Game
-
 class Combat:
     pass
 
@@ -31,8 +28,3 @@ def combat(trainer, opponent):
         battle_won = True
     return battle_won
 
-def main():
-    game = Game()
-
-
-main()

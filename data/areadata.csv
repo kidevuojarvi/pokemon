@@ -1,0 +1,15 @@
+# New Area
+#
+neutral=white
+B=block,0
+T=tree,0,0,cut
+W=warp,1,0,None,None,0:4:4
+MAP
+BBBBBBBB
+B      B
+B T    B
+B      B
+B      B
+B      B
+B     WB
+BBBBBBBB

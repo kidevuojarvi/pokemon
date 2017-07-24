@@ -1,7 +1,19 @@
+from enum import Enum
+
+class TrainerMovementType(Enum):
+    WALKING = 0         # Most usual type of movement
+    RUNNING = 1         # If B is held while walking
+    CYCLING = 2         # If on a bike
+    SURFING = 3         # If on water
+    FORCED_MOVEMENT = 4 # Spin tiles or cutscene movement
+    CLIPPING = 5        # For debugging perhaps?
+
+
 class Trainer:
     def __init__(self, name, model):
         self.__name = name
         self.__model = model
+        self.__movetype = TrainerMovementType.WALKING
         self.__inventory = []
         self.__party = []
         self.__money = 0

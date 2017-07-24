@@ -2,15 +2,16 @@ INDEXDATA = []
 MOVEDATA = []
 TYPEDATA = []
 NATUREDATA = []
+AREADATA = []
 
 def read_indexdata():
     if len(INDEXDATA) > 0:
         return
     try:
-        file = open("indexdata.csv", "r", encoding="utf-8")
+        file = open("./data/indexdata.csv", "r", encoding="utf-8")
     except IOError:
         print("indexdata.csv not usable")
-        return
+        raise AssertionError
     for row in file:
         row = row.rstrip().split(";")
         data = {}
@@ -39,10 +40,10 @@ def read_naturedata():
     if len(NATUREDATA) > 0:
         return
     try:
-        file = open("naturedata.csv", "r", encoding="utf-8")
+        file = open("./data/naturedata.csv", "r", encoding="utf-8")
     except IOError:
         print("naturedata.csv not usable")
-        return
+        raise AssertionError
     for row in file:
         row = row.rstrip().split(",")
         row[0] = row[0].capitalize()
@@ -52,14 +53,36 @@ def read_naturedata():
     file.close()
 
 def read_movedata():
-    if len(MOVEDATA) == 0:
+    if len(MOVEDATA) > 0:
         return
 
 def read_typedata():
-    if len(TYPEDATA) == 0:
+    if len(TYPEDATA) > 0:
         return
+
+def read_areadata():
+    if len(AREADATA) > 0:
+        return
+    try:
+        file = open("./data/areadata.csv", "r", encoding="utf-8")
+    except IOError:
+        print("areadata.csv not usable")
+        raise AssertionError
+    current = []
+    for row in file:
+        row = row.rstrip()
+        if row == "# New Area":
+            if current != []:
+                AREADATA.append(current)
+            current = []
+        if row[0] != "#":
+            current.append(row)
+    if current != []:
+                AREADATA.append(current)
+    file.close()
 
 read_indexdata()
 read_movedata()
 read_typedata()
 read_naturedata()
+read_areadata()
