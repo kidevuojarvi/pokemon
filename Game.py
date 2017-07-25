@@ -6,7 +6,7 @@ from Area import Area
 class Game:
     def __init__(self):
         self.__state = None # Cutscene, overworld, combat
-        self.__area = None # Area of the map currently displayed
+        self.__area = 0 # Area of the map currently displayed
         self.__map = Area(0)
         self.__UI = GUI(self)
 
@@ -16,3 +16,10 @@ class Game:
 
     def get_map(self):
         return self.__map
+
+    def warp(self, new_area):
+        # Don't recreate if warped to the same map
+        if self.__area == new_area:
+            return
+        self.__area = new_area
+        self.__map = Area(new_area)

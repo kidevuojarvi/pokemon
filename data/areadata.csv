@@ -3,13 +3,16 @@
 neutral=white
 B=block,0
 T=tree,0,0,cut
-W=warp,1,0,None,None,0:4:4
+W=warp,1,0,None,None,0:3:7
+N=warp,1,0,None,None,0:8:6
+X=warp,1,0,None,None,0:8:6
 MAP
-BBBBBBBB
-B      B
-B T    B
-B      B
-B      B
-B      B
-B     WB
-BBBBBBBB
+BBBBBBBBBB
+B        B
+B T      B
+B        B
+B        B
+B        B
+BX      WB
+B  N     B
+BBBBBBBBBB

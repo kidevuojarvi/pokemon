@@ -11,6 +11,7 @@ class Tile:
         self.__surfable = bool(int(surfable))
         self.__interaction = interaction
         self.__hiddenitem = hiddenitem
+        self.__warp = warp
         if warp is not None:
             self.__warp = warp.split(":")
 
