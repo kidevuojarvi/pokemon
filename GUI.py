@@ -17,6 +17,14 @@ class GUI:
         self.__parent = world
 
         self.__ow_sprites = {"red": PhotoImage(file="./data/images/red.png").zoom(ZOOM, ZOOM),
+                             "up": PhotoImage(file="./data/images/trainer/trainer_up.png").zoom(ZOOM, ZOOM),
+                             "down": PhotoImage(file="./data/images/trainer/trainer_down.png").zoom(ZOOM, ZOOM),
+                             "right": PhotoImage(file="./data/images/trainer/trainer_right.png").zoom(ZOOM, ZOOM),
+                             "left": PhotoImage(file="./data/images/trainer/trainer_left.png").zoom(ZOOM, ZOOM),
+                             "walk_up": PhotoImage(file="./data/images/trainer/trainer_up_walk.png").zoom(ZOOM, ZOOM),
+                             "walk_down": PhotoImage(file="./data/images/trainer/trainer_down_walk.png").zoom(ZOOM, ZOOM),
+                             "walk_right": PhotoImage(file="./data/images/trainer/trainer_right_walk.png").zoom(ZOOM, ZOOM),
+                             "walk_left": PhotoImage(file="./data/images/trainer/trainer_left_walk.png").zoom(ZOOM, ZOOM),
                              "block": PhotoImage(file="./data/images/block.png").zoom(ZOOM, ZOOM),
                              "tree": PhotoImage(file="./data/images/tree.png").zoom(ZOOM, ZOOM),
                              "white": PhotoImage(file="./data/images/white.png").zoom(ZOOM, ZOOM),
@@ -25,6 +33,10 @@ class GUI:
 
         self.__canvas = Canvas(self.__mw, width=WIDTH, height=HEIGHT)
         self.__canvas.pack(expand=1, fill=BOTH)
+
+        self.__ongoing_animation = False
+        self.__prev_command = None
+        self.__prev_command_timestamp = time()
 
         self.__x = 4
         self.__y = 4
@@ -43,42 +55,52 @@ class GUI:
 
 
     def key_event(self, event):
+        # TODO: Consider running and cycling
+        if time() - self.__prev_command_timestamp < 0.3 and self.__prev_command == event.keysym:
+            return
+
+        if self.__ongoing_animation:
+            return
+
+        self.__prev_command = event.keysym
+        self.__prev_command_timestamp = time()
+
         if event.keysym == "Escape":
             self.__mw.destroy()
 
         elif event.keysym == "Up":
+            self.__canvas.itemconfig(self.__trainer, image=self.__ow_sprites["up"])
             if self.__parent.is_passable(self.__x, self.__y - 1):
                 self.__y -= 1
-                for block in self.__blocks:
-                    self.__canvas.move(block, 0, 16 * ZOOM)
+                self.movement_animation(0, 1, "up")
             else:
                 print("Bump")
                 #TODO: bump-sound
 
         elif event.keysym == "Down":
+            self.__canvas.itemconfig(self.__trainer, image=self.__ow_sprites["down"])
             if self.__parent.is_passable(self.__x, self.__y + 1):
                 self.__y += 1
-                for block in self.__blocks:
-                    self.__canvas.move(block, 0, -16 * ZOOM)
+                self.movement_animation(0, -1, "down")
             else:
                 print("Bump")
                 #TODO: bump-sound
 
 
         elif event.keysym == "Right":
+            self.__canvas.itemconfig(self.__trainer, image=self.__ow_sprites["right"])
             if self.__parent.is_passable(self.__x + 1, self.__y):
                 self.__x += 1
-                for block in self.__blocks:
-                    self.__canvas.move(block, -16 * ZOOM, 0)
+                self.movement_animation(-1, 0, "right")
             else:
                 print("Bump")
                 #TODO: bump-sound
 
         elif event.keysym == "Left":
+            self.__canvas.itemconfig(self.__trainer, image=self.__ow_sprites["left"])
             if self.__parent.is_passable(self.__x - 1, self.__y):
                 self.__x -= 1
-                for block in self.__blocks:
-                    self.__canvas.move(block, 16 * ZOOM, 0)
+                self.movement_animation(1, 0,"left")
             else:
                 print("Bump")
                 #TODO: bump-sound
@@ -104,10 +126,10 @@ class GUI:
                     (16 * (i - delta_y) + 8) * ZOOM,
                     image=self.__ow_sprites[tile.get_type()])
                 )
-        self.__red = self.__canvas.create_image(
+        self.__trainer = self.__canvas.create_image(
             (16 * (self.__x - delta_x ) + 8) * ZOOM,
             (16 * (self.__y - delta_y) + 8) * ZOOM,
-            image=self.__ow_sprites["red"]
+            image=self.__ow_sprites["down"]
         )
 
     def ticker(self):
@@ -122,7 +144,27 @@ class GUI:
         self.__num -= 1
         self.__numlbl["text"] = str(self.__num)
 
-
+    def movement_animation(self, x, y, direction):
+        self.__ongoing_animation = True
+        walkstring = "walk_" + direction
+        for block in self.__blocks:
+            self.__canvas.move(block, 4 * x * ZOOM, 4 * y * ZOOM)
+        self.__canvas.itemconfig(self.__trainer, image=self.__ow_sprites[walkstring])
+        self.__mw.update()
+        sleep(0.05)
+        for block in self.__blocks:
+            self.__canvas.move(block, 4 * x * ZOOM, 4 * y * ZOOM)
+        self.__mw.update()
+        sleep(0.05)
+        for block in self.__blocks:
+            self.__canvas.move(block, 4 * x * ZOOM, 4 * y * ZOOM)
+        self.__mw.update()
+        sleep(0.05)
+        for block in self.__blocks:
+            self.__canvas.move(block, 4 * x * ZOOM, 4 * y * ZOOM)
+        self.__canvas.itemconfig(self.__trainer, image=self.__ow_sprites[direction])
+        self.__mw.update()
+        self.__ongoing_animation = False
 
 
 #def main():
