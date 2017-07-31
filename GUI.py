@@ -29,6 +29,7 @@ class GUI:
                              "walk_left": PhotoImage(file="./data/images/trainer/trainer_left_walk.png").zoom(ZOOM, ZOOM),
                              "block": PhotoImage(file="./data/images/block.png").zoom(ZOOM, ZOOM),
                              "tree": PhotoImage(file="./data/images/tree.png").zoom(ZOOM, ZOOM),
+                             "grass": PhotoImage(file="./data/images/grass.png").zoom(ZOOM, ZOOM),
                              "white": PhotoImage(file="./data/images/white.png").zoom(ZOOM, ZOOM),
                              "warp": PhotoImage(file="./data/images/warp.png").zoom(ZOOM, ZOOM),
                              "t_black": PhotoImage(file="./data/images/transition_black.png").zoom(ZOOM, ZOOM)
@@ -54,7 +55,6 @@ class GUI:
         self.__mw.bind("<KeyPress>", self.key_event)
 
         self.__mw.after(10, self.ticker)
-        self.__mw.mainloop()
 
 
     def key_event(self, event):
@@ -115,15 +115,10 @@ class GUI:
                 #TODO: bump-sound
 
         elif event.keysym == "space":
-            self.battle_start_animation()
+            self.refocus()
 
-        if moved and self.__parent.get_map().is_warp(self.__x, self.__y):
-            new = self.__parent.get_map().get_tile(self.__x, self.__y).get_warp()
-            self.__parent.warp(int(new[0]))
-            self.__x = int(new[1])
-            self.__y = int(new[2])
-            self.warp_out_animation()
-            #self.refocus()
+        if moved:
+            self.__parent.on_step_action(self.__x, self.__y)
 
     def refocus(self, draw_trainer=True):
         delta_x = self.__x - 4
@@ -201,6 +196,11 @@ class GUI:
         self.__mw.after(ANIMATION_DELAY * 4, self.update_trainer_sprite, direction)
         self.__mw.after(ANIMATION_DELAY * 4, self.animation_over)
 
+    def warp(self, x, y):
+        self.__x = x
+        self.__y = y
+        self.warp_out_animation()
+
     def warp_out_animation(self):
         while self.__ongoing_animation:
             return self.__mw.after(10, self.warp_out_animation)
@@ -223,8 +223,14 @@ class GUI:
     def fade_out_animation(self):
         pass
 
+    def battle_start(self, combat):
+        # TODO: Change to combat music
+        self.battle_start_animation()
+        # TODO: Change to combat
+
     def battle_start_animation(self):
         self.__ongoing_animation = True
+        # TODO: A few screen flashes here
         for i in range(20):
             for j in range(9):
                 self.__mw.after(ANIMATION_DELAY * i, self.battle_start_animation_draw, (4 + i * 8) * ZOOM, (4 + 16 * j) * ZOOM, "t_black")
@@ -254,6 +260,9 @@ class GUI:
             self.__mw.after(100, self.fade_away)
         else:
             self.__mw.destroy()
+
+    def start(self):
+        self.__mw.mainloop()
 
 
 #def main():

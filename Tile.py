@@ -3,6 +3,8 @@
 # potential action when interacted with, whether or not there is a hidden item
 # and whether the tile is a warp or not.
 
+from random import randint
+
 class Tile:
     def __init__(self, type: str, walkable:bool=True, surfable:bool=False,
                  interaction:str=None, hiddenitem:str=None, warp:str=None):
@@ -13,7 +15,7 @@ class Tile:
         self.__hiddenitem = hiddenitem
         self.__warp = warp
         if warp is not None:
-            self.__warp = warp.split(":")
+            self.__warp = list(map(int, warp.split(":")))
 
     def get_type(self) -> int:
         return self.__type
@@ -39,5 +41,12 @@ class Tile:
     def is_surfable(self):
         return self.get_surfable()
 
-    def is_warp(self):
-        return self.__warp is not None
+    def on_stepped_action(self, world):
+        if self.__type == "warp":
+            world.warp(self.__warp)
+        elif self.__type == "spin":
+            pass
+        elif self.__type == "grass" or self.__type == "cave" or self.__type == "water":
+            check = randint(0, 100)
+            if check < 30:
+                world.encounter()

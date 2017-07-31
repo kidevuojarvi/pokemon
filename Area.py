@@ -5,6 +5,7 @@ class Area:
     def __init__(self, id_num: int, flyable: bool = True, cycleable: bool = True):
         self.__id = id_num
         self.__map = []
+        self.__encounterable = []
         self.__flyable = flyable
         self.__cycleable = cycleable
 
@@ -42,6 +43,12 @@ class Area:
 
     def get_map(self):
         return self.__map
+
+    def get_encounterable(self):
+        return self.__encounterable
+
+    def on_step_action(self, world, x, y):
+        self.__map[y][x].on_stepped_action(world)
 
 """
 0,0   0,1

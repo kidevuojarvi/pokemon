@@ -3,16 +3,16 @@
 neutral=white
 B=block,0
 T=tree,0,0,cut
+G=grass,1,0
 W=warp,1,0,None,None,0:3:7
-N=warp,1,0,None,None,0:8:6
 X=warp,1,0,None,None,0:8:6
 MAP
 BBBBBBBBBB
-B        B
+B      GGB
 B T      B
 B        B
 B        B
 B        B
 BX      WB
-B  N     B
+B  X     B
 BBBBBBBBBB
