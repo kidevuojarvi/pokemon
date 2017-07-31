@@ -30,7 +30,8 @@ class GUI:
                              "block": PhotoImage(file="./data/images/block.png").zoom(ZOOM, ZOOM),
                              "tree": PhotoImage(file="./data/images/tree.png").zoom(ZOOM, ZOOM),
                              "white": PhotoImage(file="./data/images/white.png").zoom(ZOOM, ZOOM),
-                             "warp": PhotoImage(file="./data/images/warp.png").zoom(ZOOM, ZOOM)
+                             "warp": PhotoImage(file="./data/images/warp.png").zoom(ZOOM, ZOOM),
+                             "t_black": PhotoImage(file="./data/images/transition_black.png").zoom(ZOOM, ZOOM)
                             }
 
         self.__canvas = Canvas(self.__mw, width=WIDTH, height=HEIGHT)
@@ -66,15 +67,18 @@ class GUI:
 
         self.__prev_command = event.keysym
         self.__prev_command_timestamp = time()
+        moved = False
 
         if event.keysym == "Escape":
             self.quit()
+            return
 
         elif event.keysym == "Up":
             self.__canvas.itemconfig(self.__trainer, image=self.__ow_sprites["up"])
             if self.__parent.is_passable(self.__x, self.__y - 1):
                 self.__y -= 1
                 self.movement_animation(0, 1, "up")
+                moved = True
             else:
                 print("Bump")
                 #TODO: bump-sound
@@ -84,6 +88,7 @@ class GUI:
             if self.__parent.is_passable(self.__x, self.__y + 1):
                 self.__y += 1
                 self.movement_animation(0, -1, "down")
+                moved = True
             else:
                 print("Bump")
                 #TODO: bump-sound
@@ -94,6 +99,7 @@ class GUI:
             if self.__parent.is_passable(self.__x + 1, self.__y):
                 self.__x += 1
                 self.movement_animation(-1, 0, "right")
+                moved = True
             else:
                 print("Bump")
                 #TODO: bump-sound
@@ -103,11 +109,15 @@ class GUI:
             if self.__parent.is_passable(self.__x - 1, self.__y):
                 self.__x -= 1
                 self.movement_animation(1, 0,"left")
+                moved = True
             else:
                 print("Bump")
                 #TODO: bump-sound
 
-        if self.__parent.get_map().is_warp(self.__x, self.__y):
+        elif event.keysym == "space":
+            self.battle_start_animation()
+
+        if moved and self.__parent.get_map().is_warp(self.__x, self.__y):
             new = self.__parent.get_map().get_tile(self.__x, self.__y).get_warp()
             self.__parent.warp(int(new[0]))
             self.__x = int(new[1])
@@ -212,6 +222,20 @@ class GUI:
 
     def fade_out_animation(self):
         pass
+
+    def battle_start_animation(self):
+        self.__ongoing_animation = True
+        for i in range(20):
+            for j in range(9):
+                self.__mw.after(ANIMATION_DELAY * i, self.battle_start_animation_draw, (4 + i * 8) * ZOOM, (4 + 16 * j) * ZOOM, "t_black")
+                self.__mw.after(ANIMATION_DELAY * i, self.battle_start_animation_draw, (156 - i * 8) * ZOOM, (4 + 16 * j + 8) * ZOOM, "t_black")
+
+        self.__mw.after(ANIMATION_DELAY * i, self.animation_over)
+        #self.__mw.after(ANIMATION_DELAY * (i + 8), self.refocus())
+
+    def battle_start_animation_draw(self, x, y, image):
+        self.__canvas.create_image(x, y, image=self.__ow_sprites[image])
+        self.__mw.update()
 
     def update_trainer_sprite(self, sprite):
         self.__canvas.itemconfig(self.__trainer, image=self.__ow_sprites[sprite])
