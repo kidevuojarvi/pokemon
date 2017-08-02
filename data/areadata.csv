@@ -6,13 +6,14 @@ T=tree,0,0,cut
 G=grass,1,0
 W=warp,1,0,None,None,0:3:7
 X=warp,1,0,None,None,0:8:6
+_=bg_grass,1,0
 MAP
 BBBBBBBBBB
-B      GGB
-B T      B
-B        B
-B        B
-B        B
-BX      WB
-B  X     B
+B_ _ _ GGB
+B T _ _ _B
+B_ _ _ _ B
+B _ _ _ _B
+B_ _ _ _ B
+BX_ _ _ WB
+B_ X _ _ B
 BBBBBBBBBB
