@@ -65,7 +65,7 @@ class GUI:
         self.__movement_enabled = True
         self.__state = "overworld"
         self.__held_keys = {}
-        self.__textbox = Textbox()
+        self.__textbox = None
         self.__mw.bind("<KeyPress>", self.key_press)
         self.__mw.bind("<KeyRelease>", self.key_release)
 
@@ -95,17 +95,21 @@ class GUI:
         if "space" in self.__held_keys and self.key_check("space"):
             self.key_disable("space")
             self.__state = "overworld"
+            self.__textbox.delete_box(self.__canvas)
             self.refocus()
 
         # Toggle between start menu and overworld
         if START in self.__held_keys and self.key_check(START):
             self.key_disable(START)
+            self.__textbox = Textbox(self.__canvas, text="moi", zoom=ZOOM)
 
+            """
             if self.__state == "overworld":
                 self.__state = "menu"
             else:
                 self.__state = "overworld"
             #TODO: Open / close start menu
+            """
 
         if self.__state == "overworld":
             self.movement_action()
@@ -127,7 +131,7 @@ class GUI:
     def key_press(self, event):
         """
         Function puts the given key event into held_keys if not already there.
-        :param event: Pressed key
+        :param event: Tkinter keypress object
         :return: None
         """
         if event.keysym not in self.__held_keys:
@@ -153,7 +157,7 @@ class GUI:
     def key_release(self, event):
         """
         Removes a held key from the datastructure
-        :param event: Pressed key
+        :param event: Tkinter keypress object
         :return: None
         """
         if event.keysym in self.__held_keys:

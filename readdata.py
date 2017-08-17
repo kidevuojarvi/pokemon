@@ -78,7 +78,7 @@ def read_areadata():
         if row[0] != "#":
             current.append(row)
     if current != []:
-                AREADATA.append(current)
+        AREADATA.append(current)
     file.close()
 
 read_indexdata()
