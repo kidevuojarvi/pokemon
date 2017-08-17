@@ -3,11 +3,13 @@ from typing import Any, Callable
 
 
 class EventType(Enum):
-    STATUS_AFFECTS_POKEMON = 0
-    STATUS_INFLICTED = 1
-    POKEMON_ATTACKS = 2
-    STATUS_REMOVE = 3
-    TURN_END = 4
+    STATUS_AFFECTS_POKEMON = "statusaffectpokemon"
+    STATUS_INFLICTED = "statusinflicted"
+    POKEMON_ATTACKS = "pokemonattacks"
+    RECOIL_DAMAGE = "recoildamage"
+    ABSORB_HEALTH = "absorbhealth"
+    STATUS_REMOVE = "statusremove"
+    TURN_END = "turnend"
 
 
 class EventData:

@@ -27,4 +27,3 @@ def combat(trainer, opponent):
         battle_ended = True
         battle_won = True
     return battle_won
-

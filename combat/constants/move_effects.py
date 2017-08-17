@@ -39,24 +39,25 @@ class MoveInflictEffect:
     def move_text(self):
         raise NotImplementedError("Not implemented")
 
-    def affect(self, attacker: Pokemon, defender: Pokemon, world: Combat):
+    def affect(self, attacker: Pokemon, defender: Pokemon, world: Combat) -> Event:
         raise NotImplementedError("Not implemented")
 
 
 class MoveInflictSleep(MoveInflictEffect):
     """
-    Sleep status
+    Sleep status inflict
     """
     def __init__(self):
         super().__init__()
 
-    @staticmethod
     def move_text(self):
         return "Puts the target to sleep"
 
-    def affect(self, attacker: Pokemon, defender: Pokemon, world: Combat):
-        if defender.no_nonvolatile_status():
-            defender.set_nonvol_status(SleepEffect(defender))
+    def affect(self, attacker: Pokemon, defender: Pokemon, world: Combat) -> Event:
+        def call():
+            if defender.no_nonvolatile_status():
+                defender.set_nonvol_status(SleepEffect(defender))
+        return Event(EventType.STATUS_INFLICTED, EventData(defendant=defender, attacker=attacker, function=call))
 
 """
 def sleep_chance(attacker: Pokemon, defender: Pokemon, chance: int):
