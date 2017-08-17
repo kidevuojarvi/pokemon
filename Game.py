@@ -1,3 +1,7 @@
+# This module is responsible for the whole game. It owns the user interface
+# and other objects related to the overworld, and
+# TODO: communicates with the combat module.
+
 from GUI import GUI
 from Area import Area
 # TODO: Import everything
