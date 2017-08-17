@@ -1,8 +1,10 @@
-from typing import List, Tuple, Dict
-from combat.constants.status_effects import StatusEffect
-from random import randint
 from math import floor
+from random import randint
+from typing import List, Tuple, Dict
+
+from combat.constants.status_effects import StatusEffect
 from readdata import INDEXDATA, NATUREDATA
+
 
 class Pokemon:
     def __init__(self, index: int, level: int):

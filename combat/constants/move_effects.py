@@ -1,7 +1,7 @@
 from random import random
-from combat.constants.status_effects import *
+
 from combat.combat import Combat
-from Pokemon import Pokemon
+from combat.constants.status_effects import *
 
 
 class MoveEffect:
@@ -43,7 +43,7 @@ class MoveInflictEffect:
         raise NotImplementedError("Not implemented")
 
 
-class Sleep(MoveInflictEffect):
+class MoveInflictSleep(MoveInflictEffect):
     """
     Sleep status
     """
@@ -56,7 +56,7 @@ class Sleep(MoveInflictEffect):
 
     def affect(self, attacker: Pokemon, defender: Pokemon, world: Combat):
         if defender.no_nonvolatile_status():
-            defender.set_nonvol_status(SleepEffect())
+            defender.set_nonvol_status(SleepEffect(defender))
 
 """
 def sleep_chance(attacker: Pokemon, defender: Pokemon, chance: int):

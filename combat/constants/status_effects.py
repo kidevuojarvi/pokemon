@@ -1,19 +1,27 @@
 from Pokemon import Pokemon
 from random import randint
-from combat.event import Event, EventType
+from combat.event import Event, EventType, EventData
+from typing import List
 
 
 class StatusEffect:
     """
     Status effect on a pokemon. Has turn count and event emitter and handler
     """
-    def __init__(self):
+    def __init__(self, pokemon: Pokemon):
+        """
+        :param pokemon: Affected pokemon
+        :return:
+        """
         self.__turns = 0
+        self.__pokemon = pokemon
 
-    def emit(self, affected: Pokemon) -> Event:
-        raise NotImplementedError("Not implemented")
-
-    def handle(self, event: Event):
+    def handle(self, event: Event) -> (Event, List[Event]):
+        """
+        Handle function modifies the original event, and return a list of new events to be dispatched
+        :param event: The event the function reacts to
+        :return: Tuple of the (possibly modified) original event, and a possibly empty list of new events
+        """
         raise NotImplementedError("Not implemented")
 
     @property
@@ -23,24 +31,26 @@ class StatusEffect:
     def increment_turns(self):
         self.__turns += 1
 
+    @property
+    def pokemon(self):
+        return self.__pokemon
+
 
 class SleepEffect(StatusEffect):
-    def __init__(self, max_turns=randint(1, 3)):
-        super().__init__()
+    def __init__(self, pokemon: Pokemon, max_turns=randint(1, 3)):
+        super().__init__(pokemon)
         self.__max_turns = max_turns
 
     def handle(self, event: Event):
         if event.type() == EventType.POKEMON_ATTACKS:
             pass
-            # TODO: Prevent pokemon from doing anything except sleep talk, switch etc.
+            # TODO: Prevent pokemon from doing anything except sleep talk etc.
 
-    def emit(self, affected: Pokemon):
-        # TODO: Actual event data implementation
-        if self.turns > self.__max_turns:
-            call = lambda: affected.remove_nonvol_status()
-        else:
-            call = lambda: None
-        return Event(EventType.STATUS_REMOVED, call)
+        if event.type() == EventType.TURN_END:
+            self.increment_turns()
+            if self.turns > self.__max_turns:
+                def call(): self.pokemon.remove_nonvol_status()
+                return event, [Event(EventType.STATUS_REMOVE, EventData(function=call, defendant=self.pokemon))]
 
 
 # Just for copying maths from

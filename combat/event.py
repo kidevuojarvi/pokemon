@@ -1,21 +1,33 @@
 from enum import Enum
+from typing import Any, Callable
 
 
 class EventType(Enum):
     STATUS_AFFECTS_POKEMON = 0
     STATUS_INFLICTED = 1
     POKEMON_ATTACKS = 2
-    STATUS_REMOVED = 3
+    STATUS_REMOVE = 3
+    TURN_END = 4
+
+
+class EventData:
+    def __init__(self, field=None, defendant=None, attacker=None, defender_damage=0, attacker_damage=0,
+                 function=Callable):
+        self.__field = field
+        self.__defendant = defendant
+        self.__attacker = attacker
+        self.__def_damage = defender_damage
+        self.__att_damage = attacker_damage,
+        self.__function_call = function
 
 
 class Event:
-    # TODO: other event data
-    def __init__(self, event_type: EventType, call):
+    # TODO: Specify data object better. Maybe have it have default
+    # Nones and each event fills out the data they need
+    def __init__(self, event_type: EventType, data_object: EventData):
         self.__type = event_type
-        self.__call = call
 
+    @property
     def type(self):
         return self.__type
 
-    def call(self):
-        self.__call()
