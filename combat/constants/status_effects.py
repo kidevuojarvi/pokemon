@@ -1,7 +1,8 @@
-from Pokemon import Pokemon
-from random import randint
-from combat.event import Event, EventType, EventData
-from typing import List
+from typing import List, TYPE_CHECKING
+if TYPE_CHECKING:
+    from Pokemon import Pokemon
+    from random import randint
+    from combat.event import Event, EventType, EventData
 
 
 class StatusEffect:
@@ -37,11 +38,11 @@ class StatusEffect:
 
 
 class SleepEffect(StatusEffect):
-    def __init__(self, pokemon: Pokemon, max_turns=randint(1, 3)):
+    def __init__(self, pokemon: "Pokemon", max_turns=randint(1, 3)):
         super().__init__(pokemon)
         self.__max_turns = max_turns
 
-    def handle(self, event: Event):
+    def handle(self, event: "Event"):
         if event.type() == EventType.POKEMON_ATTACKS:
             pass
             # TODO: Prevent pokemon from doing anything except sleep talk etc.
@@ -49,8 +50,20 @@ class SleepEffect(StatusEffect):
         if event.type() == EventType.TURN_END:
             self.increment_turns()
             if self.turns > self.__max_turns:
-                def call(): self.pokemon.remove_nonvol_status()
-                return event, [Event(EventType.STATUS_REMOVE, EventData(function=call, defendant=self.pokemon))]
+                def call(event_data: EventData):
+                    self.pokemon.remove_nonvol_status()
+                    return []
+                return event, [Event(EventType.STATUS_REMOVE, EventData(function=call, defender=self.pokemon))]
+
+
+class ParalyzeEffect(StatusEffect):
+    def __init__(self, pokemon: "Pokemon"):
+        super().__init__(pokemon)
+
+    def handle(self, event: "Event"):
+        if event.type() == EventType.POKEMON_ATTACKS:
+            pass
+            # TODO: Paralyze chance!
 
 
 # Just for copying maths from

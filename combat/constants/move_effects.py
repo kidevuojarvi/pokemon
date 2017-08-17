@@ -1,49 +1,32 @@
-from random import random
+import random
 
-from combat.combat import Combat
-from combat.constants.status_effects import *
+from typing import TYPE_CHECKING, List
+from combat.event import Event, EventData, EventType
+if TYPE_CHECKING:
+    from combat.combat import Combat
+    from combat.constants.status_effects import *
 
 
 class MoveEffect:
     """
-    Instantiate this for a move.
-    For example, a move has a chance to paralyze the target -> Make paralyze effect with a chance
+    The inflicted effect on the pokemon(s).
+    Child classes create events which set the actual effects onto pokemons
     """
-    def __init__(self, effect: MoveInflictEffect, chance: float=None):
+    def __init__(self, chance=None):
         self.__chance = chance
-        self.__effect = effect
 
     @property
     def chance(self):
         return self.__chance
 
-    @chance.setter
-    def chance(self, val):
-        self.__chance = val
-
-    @property
-    def effect(self):
-        return self.__effect
-
-    def affect(self, attacker: Pokemon, defender: Pokemon, world: Combat):
-        roll = random.random
-        if self.chance is None or roll > self.chance:
-            self.__effect.affect(attacker, defender, world)
-
-
-class MoveInflictEffect:
-    """
-    The inflicted effect on the pokemon(s).
-    Child classes are settable on Pokemon class as volatile or nonvolatile statuses.
-    """
     def move_text(self):
         raise NotImplementedError("Not implemented")
 
-    def affect(self, attacker: Pokemon, defender: Pokemon, world: Combat) -> Event:
+    def affect(self, attacker: "Pokemon", defender: "Pokemon", world: "Combat") -> List["Event"]:
         raise NotImplementedError("Not implemented")
 
 
-class MoveInflictSleep(MoveInflictEffect):
+class MoveInflictSleep(MoveEffect):
     """
     Sleep status inflict
     """
@@ -53,11 +36,39 @@ class MoveInflictSleep(MoveInflictEffect):
     def move_text(self):
         return "Puts the target to sleep"
 
-    def affect(self, attacker: Pokemon, defender: Pokemon, world: Combat) -> Event:
-        def call():
+    def affect(self, attacker: "Pokemon", defender: "Pokemon", world: "Combat") -> List["Event"]:
+        def call(event_data: "EventData"):
+            # Set the status
             if defender.no_nonvolatile_status():
                 defender.set_nonvol_status(SleepEffect(defender))
-        return Event(EventType.STATUS_INFLICTED, EventData(defendant=defender, attacker=attacker, function=call))
+            return []
+        return [Event(EventType.STATUS_INFLICT_CHANCE, EventData(defender=defender, attacker=attacker,
+                                                                 function=call))]
+
+class MoveInflictParalyzeChance(MoveEffect):
+    """
+    Paralyze chance
+    """
+    def __init__(self, chance):
+        super().__init__(chance)
+
+    def move_text(self):
+        # TODO: "How big a chance?"
+        return "Has a chance to paralyze the target"
+
+    def affect(self, attacker: "Pokemon", defender: "Pokemon", world: "Combat") -> List["Event"]:
+        def call(event_data: "EventData"):
+            # Set the status if rng
+            r = random.randint(0, 100)
+            if event_data.chance is None or r < event_data.chance:
+                # TODO: The next check is wrong for some reason
+                if defender.no_nonvolatile_status():
+                    defender.set_nonvol_status(ParalyzeEffect(defender))
+                    return [Event(EventType.STATUS_INFLICTED, EventData(lambda e: []))]
+            return []
+        return [Event(EventType.STATUS_INFLICT_CHANCE, EventData(chance=self.chance, defender=defender, attacker=attacker,
+                                                                 function=call))]
+
 
 """
 def sleep_chance(attacker: Pokemon, defender: Pokemon, chance: int):

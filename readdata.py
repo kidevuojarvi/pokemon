@@ -1,14 +1,19 @@
+import inspect
+
 INDEXDATA = []
 MOVEDATA = []
 TYPEDATA = []
 NATUREDATA = []
 AREADATA = []
 
+
+folder = "/".join(inspect.stack()[0][1].split("/")[:-1])
+
 def read_indexdata():
     if len(INDEXDATA) > 0:
         return
     try:
-        file = open("./data/indexdata.csv", "r", encoding="utf-8")
+        file = open(folder + "/data/indexdata.csv", "r", encoding="utf-8")
     except IOError:
         print("indexdata.csv not usable")
         raise AssertionError
@@ -40,7 +45,7 @@ def read_naturedata():
     if len(NATUREDATA) > 0:
         return
     try:
-        file = open("./data/naturedata.csv", "r", encoding="utf-8")
+        file = open(folder + "/data/naturedata.csv", "r", encoding="utf-8")
     except IOError:
         print("naturedata.csv not usable")
         raise AssertionError
@@ -64,7 +69,7 @@ def read_areadata():
     if len(AREADATA) > 0:
         return
     try:
-        file = open("./data/areadata.csv", "r", encoding="utf-8")
+        file = open(folder + "/data/areadata.csv", "r", encoding="utf-8")
     except IOError:
         print("areadata.csv not usable")
         raise AssertionError

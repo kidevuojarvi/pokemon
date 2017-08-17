@@ -1,9 +1,11 @@
 from math import floor
-from random import randint
-from typing import List, Tuple, Dict
-
-from combat.constants.status_effects import StatusEffect
+from random import randint, shuffle
+from typing import List, Tuple, Dict, TYPE_CHECKING
 from readdata import INDEXDATA, NATUREDATA
+
+if TYPE_CHECKING:
+    from combat.constants.status_effects import StatusEffect
+
 
 
 class Pokemon:
@@ -45,12 +47,10 @@ class Pokemon:
             self.__IVs = [31, 31, 31, 31, 31, 31]
         # Check if legendary
         if self.__index in [144, 145, 146, 150, 151]:
-            forced = []
+            all = list(range(0, 5))
+            shuffle(all)
             # Choose three different IVs to be maxed
-            while len(forced) != 3:
-                value = randint(0, 5)
-                if value not in forced:
-                    forced.append(value)
+            forced = all[:3]
             for value in forced:
                 self.__IVs[value] = 31
 
@@ -101,13 +101,13 @@ class Pokemon:
     def no_nonvolatile_status(self) -> bool:
         return self.__nonvol_status is not None
 
-    def set_nonvol_status(self, new_status: StatusEffect):
+    def set_nonvol_status(self, new_status: "StatusEffect"):
         self.__nonvol_status = new_status
 
-    def add_volatile_status(self, new_status: StatusEffect):
+    def add_volatile_status(self, new_status: "StatusEffect"):
         self.__vol_statuses.append(new_status)
 
-    def remove_volatile_status(self, to_be_removed: StatusEffect):
+    def remove_volatile_status(self, to_be_removed: "StatusEffect"):
         self.__vol_statuses.remove(to_be_removed)
 
     def remove_nonvol_status(self):
