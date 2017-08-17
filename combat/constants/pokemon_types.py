@@ -5,3 +5,4 @@ class PokemonType(enum.Enum):
     FIRE = 1
     WATER = 2
     GRASS = 3
+    ELECTRIC = 4

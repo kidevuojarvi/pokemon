@@ -28,3 +28,5 @@ def combat(trainer, opponent):
         battle_won = True
     return battle_won
 
+
+
