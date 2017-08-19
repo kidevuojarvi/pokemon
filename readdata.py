@@ -1,4 +1,5 @@
 import inspect
+import os
 
 INDEXDATA = []
 MOVEDATA = []
@@ -7,7 +8,7 @@ NATUREDATA = []
 AREADATA = []
 
 
-folder = "/".join(inspect.stack()[0][1].split("/")[:-1])
+folder = "/".join(inspect.stack()[0][1].split(os.sep)[:-1])
 
 def read_indexdata():
     if len(INDEXDATA) > 0:

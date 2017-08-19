@@ -1,24 +1,30 @@
 from enum import Enum
-from typing import Callable, List, TYPE_CHECKING
+from typing import Callable, List, TYPE_CHECKING, Any
 import random
 
 if TYPE_CHECKING:
     from Pokemon import Pokemon
 
 class EventType(Enum):
-    STATUS_AFFECTS_POKEMON = "statusaffectpokemon"
-    STATUS_INFLICT_CHANCE = "statusinflictchance"
-    STATUS_INFLICTED = "statusinflicted"
+    SLEEP_INFLICTING = "sleepinflicting"
+    FINAL_SLEEP_INFLICTED = "sleepinflicted"
+    PARALYZE_INFLICTING = "paralyzeinflicting"
+    FINAL_PARALYZE_INFLICTED = "paralyzeinflicted"
     POKEMON_ATTACKS = "pokemonattacks"
+    FINAL_ATTACK_DID_DAMAGE = "attackhits"
     RECOIL_DAMAGE = "recoildamage"
+    FINAL_TOOK_RECOIL_DAMAGE = "tookrecoil"
     ABSORB_HEALTH = "absorbhealth"
+    FINAL_HEALTH_ABSORBED = "absorbedhealth"
     STATUS_REMOVE = "statusremove"
     TURN_END = "turnend"
     POKEMON_MISSES = "pokemonmisses"
+    ATTACK_DOES_EXACT_DAMAGE = "attackexactdamage"
+    ATTACK_FAILED = "attackfailed"
 
 
 class EventData:
-    def __init__(self, function: Callable[["EventData"], List["Event"]], field=None,
+    def __init__(self, function: Callable[["EventData"], Any]=lambda ed: None, field=None,
                  defender: "Pokemon"=None, attacker: "Pokemon"=None, damage=0, chance: float=None):
         """
         Function is a function which, when called, executes the event

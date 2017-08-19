@@ -2,9 +2,10 @@ import random
 
 from typing import TYPE_CHECKING, List
 from combat.event import Event, EventData, EventType
+from combat.constants.status_effects import *
 if TYPE_CHECKING:
     from combat.combat import Combat
-    from combat.constants.status_effects import *
+
 
 
 class MoveEffect:
@@ -19,11 +20,27 @@ class MoveEffect:
     def chance(self):
         return self.__chance
 
-    def move_text(self):
-        raise NotImplementedError("Not implemented")
-
     def affect(self, attacker: "Pokemon", defender: "Pokemon", world: "Combat") -> List["Event"]:
         raise NotImplementedError("Not implemented")
+
+
+class MoveInflictExactDamage(MoveEffect):
+    """
+    Exact damage, for example Dragon Rage
+    """
+    def __init__(self, damage):
+        super().__init__()
+
+    @staticmethod
+    def call(event_data: "EventData"):
+        damage = event_data.defender.damage(event_data.damage)
+        if damage > 0:
+            return Event(EventType.FINAL_ATTACK_DID_DAMAGE,
+                         EventData(defender=event_data.defender, damage=damage))
+
+    def affect(self, attacker: "Pokemon", defender: "Pokemon", world: "Combat"):
+        return Event(EventType.ATTACK_DOES_EXACT_DAMAGE,
+                     EventData(function=self.call, defender=defender, attacker=attacker))
 
 
 class MoveInflictSleep(MoveEffect):
@@ -33,17 +50,16 @@ class MoveInflictSleep(MoveEffect):
     def __init__(self):
         super().__init__()
 
-    def move_text(self):
-        return "Puts the target to sleep"
+    @staticmethod
+    def call(event_data: "EventData"):
+        # Set the status
+        if event_data.defender.no_nonvolatile_status():
+            event_data.defender.set_nonvol_status(SleepEffect(event_data.defender))
+            return Event(EventType.FINAL_SLEEP_INFLICTED, EventData(defender=event_data.defender))
 
-    def affect(self, attacker: "Pokemon", defender: "Pokemon", world: "Combat") -> List["Event"]:
-        def call(event_data: "EventData"):
-            # Set the status
-            if defender.no_nonvolatile_status():
-                defender.set_nonvol_status(SleepEffect(defender))
-            return []
-        return [Event(EventType.STATUS_INFLICT_CHANCE, EventData(defender=defender, attacker=attacker,
-                                                                 function=call))]
+    def affect(self, attacker: "Pokemon", defender: "Pokemon", world: "Combat"):
+        return Event(EventType.SLEEP_INFLICTING, EventData(defender=defender, attacker=attacker,
+                                                            function=self.call))
 
 class MoveInflictParalyzeChance(MoveEffect):
     """
@@ -52,22 +68,18 @@ class MoveInflictParalyzeChance(MoveEffect):
     def __init__(self, chance):
         super().__init__(chance)
 
-    def move_text(self):
-        # TODO: "How big a chance?"
-        return "Has a chance to paralyze the target"
+    @staticmethod
+    def call(event_data: "EventData"):
+        # Set the status if rng
+        r = random.randint(0, 100)
+        if event_data.chance is None or r < event_data.chance:
+            if event_data.defender.no_nonvolatile_status():
+                event_data.defender.set_nonvol_status(ParalyzeEffect(event_data.defender))
+                return Event(EventType.FINAL_PARALYZE_INFLICTED, EventData(defender=event_data.defender))
 
-    def affect(self, attacker: "Pokemon", defender: "Pokemon", world: "Combat") -> List["Event"]:
-        def call(event_data: "EventData"):
-            # Set the status if rng
-            r = random.randint(0, 100)
-            if event_data.chance is None or r < event_data.chance:
-                # TODO: The next check is wrong for some reason
-                if defender.no_nonvolatile_status():
-                    defender.set_nonvol_status(ParalyzeEffect(defender))
-                    return [Event(EventType.STATUS_INFLICTED, EventData(lambda e: []))]
-            return []
-        return [Event(EventType.STATUS_INFLICT_CHANCE, EventData(chance=self.chance, defender=defender, attacker=attacker,
-                                                                 function=call))]
+    def affect(self, attacker: "Pokemon", defender: "Pokemon", world: "Combat"):
+        return Event(EventType.PARALYZE_INFLICTING, EventData(chance=self.chance, defender=defender, attacker=attacker,
+                                                               function=self.call))
 
 
 """

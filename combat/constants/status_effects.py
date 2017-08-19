@@ -1,7 +1,7 @@
 from typing import List, TYPE_CHECKING
+from random import randint
 if TYPE_CHECKING:
     from Pokemon import Pokemon
-    from random import randint
     from combat.event import Event, EventType, EventData
 
 
@@ -9,7 +9,7 @@ class StatusEffect:
     """
     Status effect on a pokemon. Has turn count and event emitter and handler
     """
-    def __init__(self, pokemon: Pokemon):
+    def __init__(self, pokemon: "Pokemon"):
         """
         :param pokemon: Affected pokemon
         :return:
@@ -17,7 +17,7 @@ class StatusEffect:
         self.__turns = 0
         self.__pokemon = pokemon
 
-    def handle(self, event: Event) -> (Event, List[Event]):
+    def handle(self, event: "Event") -> ("Event", List["Event"]):
         """
         Handle function modifies the original event, and return a list of new events to be dispatched
         :param event: The event the function reacts to
@@ -67,7 +67,7 @@ class ParalyzeEffect(StatusEffect):
 
 
 # Just for copying maths from
-def burn_event(affected: Pokemon):
+def burn_event(affected: "Pokemon"):
     """
     Affected pokemon loses 1/16 of it's max HP at the end of turn
     :param affected: Pokemon affected by burn
@@ -78,7 +78,7 @@ def burn_event(affected: Pokemon):
     # TODO: Call for animation
 
 
-def poison_event(affected: Pokemon):
+def poison_event(affected: "Pokemon"):
     """
     Affected pokemon loses 1/8 of it's max HP at the end of turn
     :param affected: Pokemon affected by poison
@@ -89,7 +89,7 @@ def poison_event(affected: Pokemon):
     # TODO: Call for animation
 
 
-def toxic_event(affected: Pokemon):
+def toxic_event(affected: "Pokemon"):
     """
     Affected pokemon loses a cumulative 1/16 of it's max HP at the end of turn,
     then cumulative toxic count gets raised
@@ -104,7 +104,7 @@ def toxic_event(affected: Pokemon):
     # TODO: Call for animation
 
 
-def leech_seed_event(affected: Pokemon, receiver: Pokemon):
+def leech_seed_event(affected: "Pokemon", receiver: "Pokemon"):
     """
     Affected pokemon loses 1/8 of it's max HP, and the receiving pokemon gains
     an equal amount
@@ -119,7 +119,7 @@ def leech_seed_event(affected: Pokemon, receiver: Pokemon):
     # TODO: Game prints information
 
 
-def flinch_event(affected: Pokemon):
+def flinch_event(affected: "Pokemon"):
     """
     Removes flinch from affected pokemon
     :param affected: Pokemon affected by flinch
@@ -128,7 +128,7 @@ def flinch_event(affected: Pokemon):
     affected.decrease_volatile_status_counter("flinch")
 
 
-def curse_ghost_event(affected: Pokemon):
+def curse_ghost_event(affected: "Pokemon"):
     """
     Deals damage to affected pokemon equal to 1/4 of it's max HP
     :param affected: Pokemon affected by curse

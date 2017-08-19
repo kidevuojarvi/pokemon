@@ -99,7 +99,7 @@ class Pokemon:
         return self.__vol_statuses
 
     def no_nonvolatile_status(self) -> bool:
-        return self.__nonvol_status is not None
+        return self.__nonvol_status is None
 
     def set_nonvol_status(self, new_status: "StatusEffect"):
         self.__nonvol_status = new_status
