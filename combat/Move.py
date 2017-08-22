@@ -6,16 +6,17 @@ from Pokemon import Pokemon
 from combat.event import Event, EventData, EventType
 import random
 from combat.util.util import flatten_events
+from combat.constants.pokemon_types import type_multiplier
 
 
 class Move:
-    def __init__(self, name: str, power: int, accuracy: int, pokemon_type: List[PokemonType],
+    def __init__(self, name: str, power: int, accuracy: int, elemental_types: List[PokemonType],
                  category: MoveCategory, contact: bool, effects: List[MoveEffect]=None, use_function=None,
-                 recoil_percent=None, absorb_percent=None):
+                 recoil_percent=None, absorb_percent=None, crit_chance=None):
         self.__name = name
         self.__power = power
         self.__accuracy = accuracy
-        self.__type = pokemon_type
+        self.__types = elemental_types
         self.__category = category
         self.__contact = contact
         self.__effects = effects if effects is not None else list()
@@ -25,6 +26,7 @@ class Move:
             self.__function = self.normal_use
         else:
             self.__function = use_function
+        self.__crit_chance = crit_chance if crit_chance is not None else 0.1  # TODO: real crit chance?
 
     @staticmethod
     def simple_damage(data: EventData):
@@ -71,16 +73,19 @@ class Move:
             r = random.randint(0, 100)
             if event_data.chance is None or event_data.chance > r:
                 # If the move does damage
-                if event_data.damage > 0:
+                if event_data.damage is None or event_data.damage > 0:
                     # Actually do the damage
-                    damage = event_data.defender.damage(event_data.damage)
+                    potential_dmg, critical = self.calculate_real_damage(event_data, attacker, defender)
+                    damage = event_data.defender.damage(potential_dmg)
                     events = [Event(EventType.FINAL_ATTACK_DID_DAMAGE, EventData(damage=event_data.damage, defender=defender))]
+                    if critical:
+                        events.append(Event(EventType.FINAL_ATTACK_CRIT,
+                                            EventData(damage=damage, attacker=attacker, defender=defender)))
+                    # Create events for possible other effects of the attack (absorb, recoil, status chances, ...)
+                    events.extend(self.damage_adds(self, damage, attacker))
                 else:
-                    damage = 0
                     events = []
 
-                # Create events for possible other effects of the attack (absorb, recoil, status chances, ...)
-                events.extend(self.damage_adds(self, damage, attacker))
                 effect_events = list(map(lambda e: e.affect(attacker, defender, None), self.effects))
                 for ev_l in effect_events:
                     events.extend(flatten_events(ev_l))
@@ -89,22 +94,38 @@ class Move:
                 return [Event(EventType.POKEMON_MISSES,
                               EventData(lambda ed: []))]
 
-        dmg = self.calculate_damage(attacker, defender)
+        dmg = self.calculate_unmodified_damage(attacker, defender)
         attack_event = Event(EventType.POKEMON_ATTACKS,
-                      EventData(
+                             EventData(
                                   attack_hits_or_misses,
-                                  defender=defender, attacker=attacker, damage=dmg, chance=self.accuracy
-                                )
-                      )
+                                  defender=defender, attacker=attacker, damage=dmg,
+                                  chance=self.get_hit_chance(attacker, defender),
+                                  multiplier=type_multiplier(self.__types, defender.types)
+                                  )
+                             )
 
         l = [attack_event]
 
         return l
 
+    def get_hit_chance(self, attacker: "Pokemon", defender: "Pokemon"):
+        # TODO: use accuracy and evasion modifiers
+        return self.accuracy
+
+    @staticmethod
+    def calculate_real_damage(event_data: "EventData", attacker: "Pokemon", defender: "Pokemon"):
+        r = random.randint(0, 100)
+        base = event_data.damage
+        multiplied = base * event_data.multiplier
+        crit = event_data.crit_chance is not None and r < event_data.crit_chance
+        critted = multiplied * 2 if crit else multiplied  # TODO: crit damage calculation
+        return critted
+
     def use(self, attacker: Pokemon, defender: Pokemon) -> List[Event]:
         return self.__function(self, attacker, defender)
 
-    def calculate_damage(self, attacker: Pokemon, defender: Pokemon):
+    def calculate_unmodified_damage(self, attacker: Pokemon, defender: Pokemon):
+        # TODO: calculate damage
         return self.power
 
     @property
@@ -130,14 +151,18 @@ class Move:
     def accuracy(self):
         return self.__accuracy
 
-    def get_type(self):
-        return self.__type
+    @property
+    def types(self):
+        return self.__types
 
-    def get_category(self):
+    @property
+    def category(self):
         return self.__category
 
-    def get_contact(self):
+    @property
+    def contact(self):
         return self.__contact
 
-    def get_effects(self):
+    @property
+    def effects(self):
         return self.__effects

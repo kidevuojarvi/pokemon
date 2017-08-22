@@ -5,6 +5,7 @@ import random
 if TYPE_CHECKING:
     from Pokemon import Pokemon
 
+
 class EventType(Enum):
     SLEEP_INFLICTING = "sleepinflicting"
     FINAL_SLEEP_INFLICTED = "sleepinflicted"
@@ -12,6 +13,7 @@ class EventType(Enum):
     FINAL_PARALYZE_INFLICTED = "paralyzeinflicted"
     POKEMON_ATTACKS = "pokemonattacks"
     FINAL_ATTACK_DID_DAMAGE = "attackhits"
+    FINAL_ATTACK_CRIT = "attackcriticals"
     RECOIL_DAMAGE = "recoildamage"
     FINAL_TOOK_RECOIL_DAMAGE = "tookrecoil"
     ABSORB_HEALTH = "absorbhealth"
@@ -24,8 +26,8 @@ class EventType(Enum):
 
 
 class EventData:
-    def __init__(self, function: Callable[["EventData"], Any]=lambda ed: None, field=None,
-                 defender: "Pokemon"=None, attacker: "Pokemon"=None, damage=0, chance: float=None):
+    def __init__(self, function: Callable[["EventData"], Any]=lambda ed: None, field=None, multiplier: float=None,
+                 defender: "Pokemon"=None, attacker: "Pokemon"=None, damage=0, chance: float=None, crit_chance=None):
         """
         Function is a function which, when called, executes the event
         :param function:
@@ -35,12 +37,14 @@ class EventData:
         :param damage:
         :param chance:
         """
+        self.__multiplier = multiplier
         self.__field = field
         self.__defendant = defender
         self.__attacker = attacker
         self.__def_damage = damage
         self.__chance = chance
         self.__call = function
+        self.__crit_chance = crit_chance
 
     def call(self):
         return self.__call(self)
@@ -64,6 +68,14 @@ class EventData:
     @property
     def chance(self):
         return self.__chance
+
+    @property
+    def multiplier(self):
+        return self.__multiplier
+
+    @property
+    def crit_chance(self):
+        return self.__crit_chance
 
 
 class Event:

@@ -5,6 +5,7 @@ from readdata import INDEXDATA, NATUREDATA
 
 if TYPE_CHECKING:
     from combat.constants.status_effects import StatusEffect
+    from combat.constants.pokemon_types import PokemonType
 
 
 
@@ -89,7 +90,8 @@ class Pokemon:
     def get_nature(self) -> Tuple[str, int, int]:
         return self.__nature
 
-    def get_types(self) -> List[str]:
+    @property
+    def types(self) -> List["PokemonType"]:
         return self.__types
 
     def get_nonvol_status(self) -> Tuple[str, int]:
