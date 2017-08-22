@@ -82,6 +82,27 @@ class MoveInflictParalyzeChance(MoveEffect):
                                                                function=self.call))
 
 
+class MoveInflictBurnChance(MoveEffect):
+    """
+    Paralyze chance
+    """
+    def __init__(self, chance):
+        super().__init__(chance)
+
+    @staticmethod
+    def call(event_data: "EventData"):
+        # Set the status if rng
+        r = random.randint(0, 100)
+        if event_data.chance is None or r < event_data.chance:
+            if event_data.defender.no_nonvolatile_status():
+                event_data.defender.set_nonvol_status(BurnEffect(event_data.defender))
+                return Event(EventType.FINAL_BRUN_INFLICTED, EventData(defender=event_data.defender))
+
+    def affect(self, attacker: "Pokemon", defender: "Pokemon", world: "Combat"):
+        return Event(EventType.BURN_INFLICTING, EventData(chance=self.chance, defender=defender, attacker=attacker,
+                                                          function=self.call))
+
+
 """
 def sleep_chance(attacker: Pokemon, defender: Pokemon, chance: int):
     if defender.get_nonvol_status() != None:

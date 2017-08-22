@@ -23,6 +23,9 @@ class EventType(Enum):
     POKEMON_MISSES = "pokemonmisses"
     ATTACK_DOES_EXACT_DAMAGE = "attackexactdamage"
     ATTACK_FAILED = "attackfailed"
+    MULTI_HIT_TIMES = "multihittimes"
+    BURN_INFLICTING = "burninflicting"
+    FINAL_BURN_INFLICTED = "burninflicted"
 
 
 class EventData:

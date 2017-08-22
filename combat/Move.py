@@ -10,15 +10,15 @@ from combat.constants.pokemon_types import type_multiplier
 
 
 class Move:
-    def __init__(self, name: str, power: int, accuracy: int, elemental_types: List[PokemonType],
-                 category: MoveCategory, contact: bool, effects: List[MoveEffect]=None, use_function=None,
+    def __init__(self, name: str, power: int, accuracy: int, types,
+                 category: MoveCategory, contact: bool = None, effects: List[MoveEffect]=None, use_function=None,
                  recoil_percent=None, absorb_percent=None, crit_chance=None):
         self.__name = name
         self.__power = power
         self.__accuracy = accuracy
-        self.__types = elemental_types
+        self.__types = types if isinstance(types, list) else [types]
         self.__category = category
-        self.__contact = contact
+        self.__contact = contact if contact is not None else True if category == MoveCategory.PHYSICAL else False
         self.__effects = effects if effects is not None else list()
         self.__recoil_percent = recoil_percent
         self.__absorb_percent = absorb_percent

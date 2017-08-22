@@ -1,14 +1,32 @@
 from combat.Move import Move, MoveCategory, PokemonType
 from combat.constants.move_effects import *
 from typing import TYPE_CHECKING
+from random import randint
 
 if TYPE_CHECKING:
     from Pokemon import Pokemon
 
-Sing = Move("Sing", 0, 55, [PokemonType.NORMAL], MoveCategory.STATUS, False, [MoveInflictSleep()])
-Tackle = Move("Tackle", 40, 95, [PokemonType.NORMAL], MoveCategory.PHYSICAL, True)
-Thunderbolt = Move("Thunderbolt", 90, 100, [PokemonType.ELECTRIC], MoveCategory.SPECIAL, False, [MoveInflictParalyzeChance(30)])
-Takedown = Move("Takedown", 90, 85, [PokemonType.NORMAL], MoveCategory.PHYSICAL, True, recoil_percent=25)
+
+def multi_hit(self: "Move", attacker: "Pokemon", defender: "Pokemon"):
+    def functioncall(ed: "EventData"):
+        return [self.normal_use(self, attacker, defender) for _ in range(ed.multiplier)]
+    r = randint(0, 5)
+    times = [2, 2, 3, 3, 4, 5][r]
+    return Event(EventType.MULTI_HIT_TIMES,
+                 EventData(multiplier=times, attacker=attacker, defender=defender,
+                           function=functioncall))
+
+
+Sing = Move("Sing", 0, 55, PokemonType.NORMAL, MoveCategory.STATUS, effects=[MoveInflictSleep()])
+Tackle = Move("Tackle", 40, 95, PokemonType.NORMAL, MoveCategory.PHYSICAL)
+KarateChop = Move("Karate Chop", 50, 100, PokemonType.FIGHTING, MoveCategory.PHYSICAL, crit_chance=0.3)
+DoubleSlap = Move("Double Slap", 15, 85, PokemonType.NORMAL, MoveCategory.PHYSICAL, use_function=multi_hit)
+CometPunch = Move("Comet Punch", 18, 85, PokemonType.NORMAL, MoveCategory.PHYSICAL, use_function=multi_hit)
+MegaPunch = Move("MegaPunch", 80, 85, PokemonType.NORMAL, MoveCategory.PHYSICAL)
+PayDay = Move("PayDay", 40, 100, PokemonType.NORMAL, MoveCategory.PHYSICAL, False)  # TODO: Payday effect
+FirePunch = Move("Fire Punch", 75, 100, PokemonType.FIRE, MoveCategory.PHYSICAL, effects=[MoveInflictBurnChance(10)])
+Thunderbolt = Move("Thunderbolt", 90, 100, PokemonType.ELECTRIC, MoveCategory.SPECIAL, effects=[MoveInflictParalyzeChance(30)])
+Takedown = Move("Takedown", 90, 85, PokemonType.NORMAL, MoveCategory.PHYSICAL, recoil_percent=25)
 
 
 def imagine_effect(self: "Move", attacker: "Pokemon", defender: "Pokemon"):

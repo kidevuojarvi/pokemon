@@ -43,11 +43,11 @@ class SleepEffect(StatusEffect):
         self.__max_turns = max_turns
 
     def handle(self, event: "Event"):
-        if event.type() == EventType.POKEMON_ATTACKS:
+        if event.type == EventType.POKEMON_ATTACKS:
             pass
             # TODO: Prevent pokemon from doing anything except sleep talk etc.
 
-        if event.type() == EventType.TURN_END:
+        if event.type == EventType.TURN_END:
             self.increment_turns()
             if self.turns > self.__max_turns:
                 def call(event_data: EventData):
@@ -61,9 +61,23 @@ class ParalyzeEffect(StatusEffect):
         super().__init__(pokemon)
 
     def handle(self, event: "Event"):
-        if event.type() == EventType.POKEMON_ATTACKS:
+        if event.type == EventType.POKEMON_ATTACKS:
             pass
             # TODO: Paralyze chance!
+
+
+class BurnEffect(StatusEffect):
+    def __init__(self, pokemon: "Pokemon"):
+        super().__init__(pokemon)
+
+    def handle(self, event: "Event"):
+        if event.type == EventType.POKEMON_ATTACKS:
+            pass
+            # TODO: Burn halve attack
+
+        elif event.type == EventType.TURN_END:
+            # TODO: Do damage
+            pass
 
 
 # Just for copying maths from
