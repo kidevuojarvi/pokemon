@@ -1,4 +1,6 @@
 import inspect
+import os
+from combat.constants.pokemon_types import PokemonType
 
 INDEXDATA = []
 MOVEDATA = []
@@ -10,6 +12,31 @@ AREADATA = []
 folder = "/".join(inspect.stack()[0][1].split("/")[:-1])
 if folder == "":
     folder = "."
+
+def string_to_type(s):
+    types = {
+        "NORMAL" : 0,
+        "FIRE" : 1,
+        "WATER" : 2,
+        "ELECTRIC" : 3,
+        "GRASS" : 4,
+        "ICE" : 5,
+        "FIGHTING" : 6,
+        "POISON" : 7,
+        "GROUND" : 8,
+        "FLYING" : 9,
+        "PSYCHIC" : 10,
+        "BUG" : 11,
+        "ROCK" : 12,
+        "GHOST" : 13,
+        "DRAGON" : 14,
+        "DARK" : 15,
+        "STEEL" : 16,
+        "FAIRY" : 17,
+        "NONE" : -1
+    }
+    return PokemonType(types[s.upper()])
+
 
 def read_indexdata():
     if len(INDEXDATA) > 0:
@@ -23,9 +50,9 @@ def read_indexdata():
         row = row.rstrip().split(";")
         data = {}
         data["name"] = row[1]
-        data["types"] = [row[2]]
+        data["types"] = [string_to_type(row[2])]
         if row[3] != "None":
-            data["types"].append(row[3])
+            data["types"].append(string_to_type(row[3]))
         data["stats"] = list(map(int, row[4].split(",")))
         if row[5] == "None":
             data["evolve_level"] = None
