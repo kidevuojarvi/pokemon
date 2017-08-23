@@ -63,6 +63,23 @@ class Move:
         return events
 
     @staticmethod
+    def crit_and_effect_events(critical, damage, data: "EventData"):
+        events = []
+        if critical:
+            events.append(Event(EventType.FINAL_ATTACK_CRIT,
+                                EventData(damage=damage, attacker=data.attacker, defender=data.defender, move=data.move)))
+        if data.multiplier > 1:
+            events.append(Event(EventType.FINAL_SUPER_EFFECTIVE,
+                                EventData(attacker=data.attacker, defender=data.defender, move=data.move)))
+        elif data.multiplier == 0:
+            events.append(Event(EventType.FINAL_MOVE_DOESNT_AFFECT,
+                                EventData(attacker=data.attacker, defender=data.defender, move=data.move)))
+        elif data.multiplier < 1:
+            events.append(Event(EventType.FINAL_NOT_VERY_EFFECTIVE,
+                                EventData(attacker=data.attacker, defender=data.defender, move=data.move)))
+        return events
+
+    @staticmethod
     def attack_hits(event_data: "EventData"):
         def attackhits(e_d: "EventData"):
             # If the move does damage
@@ -70,10 +87,9 @@ class Move:
                 # Actually do the damage
                 potential_dmg, critical = event_data.move.calculate_real_damage_with_crit(e_d)
                 damage = e_d.defender.damage(potential_dmg)
-                events = [Event(EventType.FINAL_ATTACK_DID_DAMAGE, EventData(damage=e_d.damage, defender=e_d.defender, move=e_d.move))]
-                if critical:
-                    events.append(Event(EventType.FINAL_ATTACK_CRIT,
-                                        EventData(damage=damage, attacker=e_d.attacker, defender=e_d.defender, move=e_d.move)))
+                events = [Event(EventType.FINAL_ATTACK_DID_DAMAGE,
+                                EventData(damage=e_d.damage, defender=e_d.defender, move=e_d.move)),
+                          e_d.move.crit_and_effect_events(critical, damage, e_d)]
                 # Create events for possible other effects of the attack (absorb, recoil, status chances, ...)
                 events.extend(e_d.move.damage_adds(e_d.move, damage, e_d.attacker))
             else:
@@ -86,7 +102,8 @@ class Move:
 
         return Event(EventType.ATTACK_HITS,
                      EventData(function=attackhits, defender=event_data.defender, attacker=event_data.attacker,
-                               damage=event_data.damage, multiplier=event_data.multiplier, move=event_data.move,
+                               damage=event_data.damage, move=event_data.move,
+                               multiplier=type_multiplier(event_data.move.types, event_data.defender.types),
                                crit_chance=event_data.move.crit_chance))
 
     @staticmethod

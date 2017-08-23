@@ -28,6 +28,9 @@ class EventType(Enum):
     BURN_INFLICTING = auto()
     FINAL_BURN_INFLICTED = auto()
     ATTACK_HITS = auto()
+    FINAL_SUPER_EFFECTIVE = auto()
+    FINAL_NOT_VERY_EFFECTIVE = auto()
+    FINAL_MOVE_DOESNT_AFFECT = auto()
 
 
 class EventData:
