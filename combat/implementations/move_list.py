@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 Sing = Move("Sing", 0, 55, PokemonType.NORMAL, MoveCategory.STATUS, effects=[MoveInflictSleep()])
 Tackle = Move("Tackle", 40, 95, PokemonType.NORMAL, MoveCategory.PHYSICAL)
-KarateChop = Move("Karate Chop", 50, 100, PokemonType.FIGHTING, MoveCategory.PHYSICAL, crit_chance=0.3)
+KarateChop = Move("Karate Chop", 50, 100, PokemonType.FIGHTING, MoveCategory.PHYSICAL, crit_chance=30)
 DoubleSlap = Move("Double Slap", 15, 85, PokemonType.NORMAL, MoveCategory.PHYSICAL, use_function=MoveFunctions.multi_hit)
 CometPunch = Move("Comet Punch", 18, 85, PokemonType.NORMAL, MoveCategory.PHYSICAL, use_function=MoveFunctions.multi_hit)
 MegaPunch = Move("MegaPunch", 80, 85, PokemonType.NORMAL, MoveCategory.PHYSICAL)
