@@ -2,6 +2,7 @@ from tkinter import *
 from time import time, sleep
 from random import randint
 from Textbox import Textbox
+from Menubox import Menubox
 from Walk_animation import Walk_animation
 
 ZOOM = 3

@@ -41,13 +41,13 @@ class Box:
             for j in range(x):
                 self.__contents.append(self.__canvas.create_image((16 * (j + ul[0]) + 8 ) * self.__zoom, (16 * (i + ul[1]) + 8 ) * self.__zoom, image=self.__images["white"]))
         # Add corners
-        self.__contents.append(self.__canvas.create_image((16 * ul[0] + 8) * self.__zoom, (16 * ul[1] + 8) * self.__zoom, image=self.__images["u_l_c"]))
+        self.__contents.append(self.__canvas.create_image((16 * ul[0] + 8) * self.__zoom, (16 * ul[1] + 9) * self.__zoom, image=self.__images["u_l_c"]))
         self.__contents.append(self.__canvas.create_image((16 * ll[0] + 8) * self.__zoom, (16 * ll[1] + 8) * self.__zoom, image=self.__images["l_l_c"]))
-        self.__contents.append(self.__canvas.create_image((16 * ur[0] + 8) * self.__zoom, (16 * ur[1] + 8) * self.__zoom, image=self.__images["u_r_c"]))
+        self.__contents.append(self.__canvas.create_image((16 * ur[0] + 8) * self.__zoom, (16 * ur[1] + 9) * self.__zoom, image=self.__images["u_r_c"]))
         self.__contents.append(self.__canvas.create_image((16 * lr[0] + 8) * self.__zoom, (16 * lr[1] + 8) * self.__zoom, image=self.__images["l_r_c"]))
         # Add sides for the box
         for i in range(1, x - 1):
-            self.__contents.append(self.__canvas.create_image((16 * (i + ul[0]) + 8) * self.__zoom, (16 * ul[1] + 8) * self.__zoom, image=self.__images["u_b"]))
+            self.__contents.append(self.__canvas.create_image((16 * (i + ul[0]) + 8) * self.__zoom, (16 * ul[1] + 9) * self.__zoom, image=self.__images["u_b"]))
             self.__contents.append(self.__canvas.create_image((16 * (i + ul[0]) + 8) * self.__zoom, (16 * ll[1] + 8) * self.__zoom, image=self.__images["d_b"]))
         for i in range(1, y):
             self.__contents.append(self.__canvas.create_image((16 * ul[0] + 8) * self.__zoom, (16 * (i + ul[1])) * self.__zoom, image=self.__images["l_b"]))

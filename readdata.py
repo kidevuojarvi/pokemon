@@ -8,6 +8,8 @@ AREADATA = []
 
 
 folder = "/".join(inspect.stack()[0][1].split("/")[:-1])
+if folder == "":
+    folder = "."
 
 def read_indexdata():
     if len(INDEXDATA) > 0:
@@ -80,7 +82,7 @@ def read_areadata():
             if current != []:
                 AREADATA.append(current)
             current = []
-        if row[0] != "#":
+        if len(row) != 0 and row[0] != "#":
             current.append(row)
     if current != []:
         AREADATA.append(current)
