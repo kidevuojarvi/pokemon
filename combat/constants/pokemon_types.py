@@ -21,6 +21,7 @@ class PokemonType(enum.Enum):
     DARK = 15
     STEEL = 16
     FAIRY = 17
+    NONE = -1
 
 
 # Row = attack type, col = defend type
@@ -50,5 +51,5 @@ def type_multiplier(attacker_types: List["PokemonType"], defender_types: List["P
     mul = 1
     for at in attacker_types:
         for dt in defender_types:
-            mul *= type_chart[int(at)][int(dt)]
+            mul *= type_chart[int(at.value)][int(dt.value)]
     return mul
