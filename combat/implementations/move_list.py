@@ -2,19 +2,48 @@ from combat.Move import Move, MoveCategory, PokemonType
 from combat.constants.move_effects import *
 from typing import TYPE_CHECKING
 from random import randint
+from combat.constants.pokemon_types import type_multiplier
 
 if TYPE_CHECKING:
     from Pokemon import Pokemon
 
 
+# TODO: Maybe refactor multi hit entirely into move class?
 def multi_hit(self: "Move", attacker: "Pokemon", defender: "Pokemon"):
-    def functioncall(ed: "EventData"):
-        return [self.normal_use(self, attacker, defender) for _ in range(ed.multiplier)]
-    r = randint(0, 5)
-    times = [2, 2, 3, 3, 4, 5][r]
-    return Event(EventType.MULTI_HIT_TIMES,
-                 EventData(multiplier=times, attacker=attacker, defender=defender,
-                           function=functioncall))
+    def multi_hit_hits(ed: "EventData"):
+        def multi_hit_times(ed: "EventData"):
+            def multi_hit_damages(ed: "EventData"):
+                return [self.attack_hits(ed) for _ in range(ed.multiplier)]
+            r = randint(0, 5)
+            times = [2, 2, 3, 3, 4, 5][r]
+            return Event(EventType.MULTI_HIT_TIMES,
+                         EventData(multiplier=times, attacker=attacker, defender=defender,
+                                   function=multi_hit_damages, damage=ed.damage))
+
+        return Event(EventType.ATTACK_HITS,
+                     EventData(function=multi_hit_times, attacker=attacker, defender=defender,
+                               damage=ed.damage))
+
+    # TODO: refactor this into move class with an optional next-function which defaults to normal attack_hits
+    def attack_hits_or_misses(event_data: "EventData"):
+        # Check if attack hits
+        r = random.randint(0, 100)
+        if event_data.chance is None or event_data.chance > r:
+            return multi_hit_hits(event_data)
+        else:
+            return [Event(EventType.ATTACK_MISSES,
+                          EventData(lambda ed: []))]
+
+    dmg = self.calculate_unmodified_damage(attacker, defender)
+    return Event(EventType.ATTACK_TRIES_TO_HIT,
+                 EventData(function=attack_hits_or_misses, defender=defender, attacker=attacker, damage=dmg,
+                           chance=self.get_hit_chance(attacker, defender),
+                           multiplier=type_multiplier(self.types, defender.types)
+                           )
+                 )
+
+
+
 
 
 Sing = Move("Sing", 0, 55, PokemonType.NORMAL, MoveCategory.STATUS, effects=[MoveInflictSleep()])

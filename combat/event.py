@@ -11,7 +11,7 @@ class EventType(Enum):
     FINAL_SLEEP_INFLICTED = "sleepinflicted"
     PARALYZE_INFLICTING = "paralyzeinflicting"
     FINAL_PARALYZE_INFLICTED = "paralyzeinflicted"
-    POKEMON_ATTACKS = "pokemonattacks"
+    ATTACK_TRIES_TO_HIT = "pokemonattacks"
     FINAL_ATTACK_DID_DAMAGE = "attackhits"
     FINAL_ATTACK_CRIT = "attackcriticals"
     RECOIL_DAMAGE = "recoildamage"
@@ -20,12 +20,13 @@ class EventType(Enum):
     FINAL_HEALTH_ABSORBED = "absorbedhealth"
     STATUS_REMOVE = "statusremove"
     TURN_END = "turnend"
-    POKEMON_MISSES = "pokemonmisses"
+    ATTACK_MISSES = "pokemonmisses"
     ATTACK_DOES_EXACT_DAMAGE = "attackexactdamage"
     ATTACK_FAILED = "attackfailed"
     MULTI_HIT_TIMES = "multihittimes"
     BURN_INFLICTING = "burninflicting"
     FINAL_BURN_INFLICTED = "burninflicted"
+    ATTACK_HITS = "attackhits"
 
 
 class EventData:

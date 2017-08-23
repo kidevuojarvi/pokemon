@@ -66,36 +66,44 @@ class Move:
                           )
         return events
 
+    def attack_hits(self, event_data: "EventData"):
+        def attackhits(e_d: "EventData"):
+            # If the move does damage
+            if e_d.damage is None or e_d.damage > 0:
+                # Actually do the damage
+                potential_dmg, critical = self.calculate_real_damage(e_d, e_d.attacker, e_d.defender)
+                damage = e_d.defender.damage(potential_dmg)
+                events = [Event(EventType.FINAL_ATTACK_DID_DAMAGE, EventData(damage=e_d.damage, defender=e_d.defender))]
+                if critical:
+                    events.append(Event(EventType.FINAL_ATTACK_CRIT,
+                                        EventData(damage=damage, attacker=e_d.attacker, defender=e_d.defender)))
+                # Create events for possible other effects of the attack (absorb, recoil, status chances, ...)
+                events.extend(self.damage_adds(self, damage, e_d.attacker))
+            else:
+                events = []
+
+            effect_events = list(map(lambda e: e.affect(e_d.attacker, e_d.defender, None), self.effects))
+            for ev_l in effect_events:
+                events.extend(flatten_events(ev_l))
+            return events
+
+        return Event(EventType.ATTACK_HITS,
+                     EventData(function=attackhits, defender=event_data.defender, attacker=event_data.attacker,
+                               damage=event_data.damage, multiplier=event_data.multiplier))
+
     @staticmethod
     def normal_use(self: "Move", attacker: "Pokemon", defender: "Pokemon"):
         def attack_hits_or_misses(event_data: "EventData"):
             # Check if attack hits
             r = random.randint(0, 100)
             if event_data.chance is None or event_data.chance > r:
-                # If the move does damage
-                if event_data.damage is None or event_data.damage > 0:
-                    # Actually do the damage
-                    potential_dmg, critical = self.calculate_real_damage(event_data, attacker, defender)
-                    damage = event_data.defender.damage(potential_dmg)
-                    events = [Event(EventType.FINAL_ATTACK_DID_DAMAGE, EventData(damage=event_data.damage, defender=defender))]
-                    if critical:
-                        events.append(Event(EventType.FINAL_ATTACK_CRIT,
-                                            EventData(damage=damage, attacker=attacker, defender=defender)))
-                    # Create events for possible other effects of the attack (absorb, recoil, status chances, ...)
-                    events.extend(self.damage_adds(self, damage, attacker))
-                else:
-                    events = []
-
-                effect_events = list(map(lambda e: e.affect(attacker, defender, None), self.effects))
-                for ev_l in effect_events:
-                    events.extend(flatten_events(ev_l))
-                return events
+                return self.attack_hits(event_data)
             else:
-                return [Event(EventType.POKEMON_MISSES,
+                return [Event(EventType.ATTACK_MISSES,
                               EventData(lambda ed: []))]
 
         dmg = self.calculate_unmodified_damage(attacker, defender)
-        attack_event = Event(EventType.POKEMON_ATTACKS,
+        attack_event = Event(EventType.ATTACK_TRIES_TO_HIT,
                              EventData(
                                   attack_hits_or_misses,
                                   defender=defender, attacker=attacker, damage=dmg,
