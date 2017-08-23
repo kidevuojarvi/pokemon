@@ -80,12 +80,16 @@ class Move:
         return events
 
     @staticmethod
+    def move_effects(e_d: "EventData"):
+        return list(map(lambda e: e.affect(e_d.attacker, e_d.defender, None), e_d.move.effects))
+
+    @staticmethod
     def attack_hits(event_data: "EventData"):
         def attackhits(e_d: "EventData"):
             # If the move does damage
             if e_d.damage is None or e_d.damage > 0:
                 # Actually do the damage
-                potential_dmg, critical = event_data.move.calculate_real_damage_with_crit(e_d)
+                potential_dmg, critical = event_data.move.calculate_real_damage_with_crit_and_multiplier(e_d)
                 damage = e_d.defender.damage(potential_dmg)
                 events = [Event(EventType.FINAL_ATTACK_DID_DAMAGE,
                                 EventData(damage=e_d.damage, defender=e_d.defender, move=e_d.move)),
@@ -94,10 +98,7 @@ class Move:
                 events.extend(e_d.move.damage_adds(e_d.move, damage, e_d.attacker))
             else:
                 events = []
-
-            effect_events = list(map(lambda e: e.affect(e_d.attacker, e_d.defender, None), e_d.move.effects))
-            for ev_l in effect_events:
-                events.extend(flatten_events(ev_l))
+            events.extend(e_d.move.move_effects(e_d))
             return events
 
         return Event(EventType.ATTACK_HITS,
@@ -164,7 +165,7 @@ class Move:
                      )
 
     @staticmethod
-    def calculate_real_damage_with_crit(event_data: "EventData"):
+    def calculate_real_damage_with_crit_and_multiplier(event_data: "EventData"):
         r = randint(0, 100)
         base = event_data.damage
         multiplied = base * event_data.multiplier
