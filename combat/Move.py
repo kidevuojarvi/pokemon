@@ -151,11 +151,12 @@ class NormalAttackFlow:
         return list(map(lambda e: e.affect(e_d.attacker, e_d.defender, None), e_d.move.effects))
 
     @staticmethod
-    def damage_events(e_d: "EventData", event_type: "EventType"):
+    def damage_events(e_d: "EventData", event_type: "EventType", type_effect=True):
         potential_dmg = e_d.move.calculate_real_damage_with_multiplier(e_d)
         damage = e_d.defender.damage(potential_dmg)
-        events = [Event(event_type, EventData(damage=e_d.damage, defender=e_d.defender, move=e_d.move)),
-                  NormalAttackFlow.type_effect_events(damage, e_d)]
+        events = [Event(event_type, EventData(damage=e_d.damage, defender=e_d.defender, move=e_d.move))]
+        if type_effect:
+            events.append(NormalAttackFlow.type_effect_events(damage, e_d))
         # Create events for possible other effects of the attack (absorb, recoil, status chances, ...)
         events.extend(NormalAttackFlow.damage_adds(e_d.move, damage, e_d.attacker))
         events.extend(NormalAttackFlow.move_effects(e_d))
@@ -186,13 +187,15 @@ class NormalAttackFlow:
 
     @staticmethod
     def typemult_check(e_d: "EventData"):
-        # TODO: Don't do anything if type multiplier is 0
-        critical_check = e_d.move.critical_check
-        return Event(EventType.ATTACK_CRIT_CHECK,
-                     EventData(function=critical_check, defender=e_d.defender, attacker=e_d.attacker,
-                               damage=e_d.damage, move=e_d.move, chance=e_d.move.crit_chance,
-                               type_multiplier=e_d.type_multiplier,
-                               ))
+        if e_d.type_multiplier == 0:
+            return Event(EventType.FINAL_MOVE_DOESNT_AFFECT,
+                         EventData(defender=e_d.defender, attacker=e_d.attacker))
+        else:
+            critical_check = e_d.move.critical_check
+            return Event(EventType.ATTACK_CRIT_CHECK,
+                         EventData(function=critical_check, defender=e_d.defender, attacker=e_d.attacker,
+                                   damage=e_d.damage, move=e_d.move, chance=e_d.move.crit_chance,
+                                   type_multiplier=e_d.type_multiplier))
 
     @staticmethod
     def attack_hits(event_data: "EventData"):
@@ -221,17 +224,61 @@ class NormalAttackFlow:
                           chance=self.accuracy,
                           type_multiplier=type_multiplier(self.types, defender.types)))
 
+
+# TODO: Is there a cleaner way overall to implement that only the last of a multi hit will trigger effectiveness event?
 class MultiHit:
     @staticmethod
+    def multi_hit_times(e_d: "EventData"):
+        events = [MultiHit.multi_hit_damages(e_d) for _ in range(e_d.other_multiplier - 1)]
+        events.append(NormalAttackFlow.attack_hits(e_d))
+        return events
+
+    @staticmethod
+    def normal_damage(e_d: "EventData"):
+        return NormalAttackFlow.damage_events(e_d, EventType.FINAL_ATTACK_NORMAL_DAMAGE, False)
+
+    @staticmethod
+    def crit_damage(e_d: "EventData"):
+        return NormalAttackFlow.damage_events(e_d, EventType.FINAL_ATTACK_CRIT_DAMAGE, False)
+
+    @staticmethod
+    def critical_check(e_d: "EventData"):
+        if e_d.chance is None or e_d.chance < randint(0, 100):
+            return Event(EventType.ATTACK_DAMAGE_NORMAL,
+                         EventData(defender=e_d.defender, attacker=e_d.attacker, function=MultiHit.normal_damage,
+                                   type_multiplier=e_d.type_multiplier, other_multiplier=1, move=e_d.move,
+                                   damage=e_d.move.calculate_unmodified_damage(e_d.attacker, e_d.defender)))
+        else:
+            return Event(EventType.ATTACK_DAMAGE_CRIT,
+                         EventData(defender=e_d.defender, attacker=e_d.attacker, function=MultiHit.crit_damage,
+                                   type_multiplier=e_d.type_multiplier, other_multiplier=1, move=e_d.move,
+                                   damage=e_d.move.calculate_unmodified_damage(e_d.attacker, e_d.defender)))
+
+    @staticmethod
+    def typemult_check(e_d: "EventData"):
+        if e_d.type_multiplier == 0:
+            return Event(EventType.FINAL_MOVE_DOESNT_AFFECT,
+                         EventData(defender=e_d.defender, attacker=e_d.attacker))
+        else:
+            return Event(EventType.ATTACK_CRIT_CHECK,
+                         EventData(function=MultiHit.critical_check, defender=e_d.defender, attacker=e_d.attacker,
+                                   damage=e_d.damage, move=e_d.move, chance=e_d.move.crit_chance,
+                                   type_multiplier=e_d.type_multiplier))
+
+    @staticmethod
     def multi_hit_damages(e_d: "EventData"):
-        return [NormalAttackFlow.attack_hits(e_d) for _ in range(e_d.other_multiplier)]
+        return Event(EventType.ATTACK_TYPE_MULT_CHECK,
+                     EventData(function=MultiHit.typemult_check, defender=e_d.defender, attacker=e_d.attacker,
+                               damage=e_d.damage, move=e_d.move,
+                               type_multiplier=type_multiplier(e_d.move.types, e_d.defender.types),
+                               ))
 
     @staticmethod
     def multi_hit_hits(ed: "EventData"):
         times = [2, 2, 3, 3, 4, 5][randint(0, 5)]
         return Event(EventType.MULTI_HIT_TIMES,
                      EventData(other_multiplier=times, attacker=ed.attacker, defender=ed.defender,
-                               function=MultiHit.multi_hit_damages, damage=ed.damage, move=ed.move))
+                               function=MultiHit.multi_hit_times, damage=ed.damage, move=ed.move))
 
     @staticmethod
     def multi_hit(self: "Move", attacker: "Pokemon", defender: "Pokemon"):
