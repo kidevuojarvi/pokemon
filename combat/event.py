@@ -34,6 +34,11 @@ class EventType(Enum):
     FINAL_MOVE_SUPER_EFFECTIVE = auto()
     FINAL_MOVE_NOT_VERY_EFFECTIVE = auto()
     FINAL_MOVE_DOESNT_AFFECT = auto()
+    FREEZE_INFLICTING = auto()
+    FINAL_FREEZE_INFLICTED = auto()
+    ONE_HIT_KILL_CHECK = auto()
+    ONE_HIT_KILL_DAMAGE = auto()
+    FINAL_ONE_HIT_KILL_DAMAGES = auto()
 
 
 class EventData:

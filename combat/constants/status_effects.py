@@ -80,6 +80,16 @@ class BurnEffect(StatusEffect):
             pass
 
 
+class FreezeEffect(StatusEffect):
+    def __init__(self, pokemon: "Pokemon"):
+        super().__init__(pokemon)
+
+    def handle(self, event: "Event"):
+        if event.type == EventType.ATTACK_ACCURACY_CHECK:
+            pass
+            # TODO: Don't let pokemon attack except if it thaws
+
+
 # Just for copying maths from
 def burn_event(affected: "Pokemon"):
     """
