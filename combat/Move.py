@@ -288,24 +288,17 @@ class MultiHit:
 
 class OneHitKO:
     @staticmethod
-    def one_hit_kill_final(e_d: "EventData"):
-        e_d.defender.damage(e_d.damage)
+    def one_hit_kill_dmg(e_d: "EventData"):
         return Event(EventType.FINAL_ONE_HIT_KILL_DAMAGES,
                      EventData(defender=e_d.defender, attacker=e_d.attacker, damage=e_d.damage))
 
     @staticmethod
-    def one_hit_kill_dmg(e_d: "EventData"):
-        return Event(EventType.ONE_HIT_KILL_DAMAGE,
-                     EventData(defender=e_d.defender, attacker=e_d.attacker, damage=e_d.defender.get_hp(),
-                               function=OneHitKO.one_hit_kill_final))
-
-    @staticmethod
     def one_hit_kill(e_d: "EventData"):
-        return Event(EventType.ONE_HIT_KILL_CHECK,
-                     EventData(defender=e_d.defender, attacker=e_d.attacker, function=OneHitKO.one_hit_kill_dmg))
+        return Event(EventType.ONE_HIT_KILL_DAMAGE,
+                     EventData(defender=e_d.defender, attacker=e_d.attacker, function=OneHitKO.one_hit_kill_dmg,
+                               damage=e_d.defender.get_hp()))
 
     @staticmethod
     def one_hit_ko_use(self: "Move", attacker: "Pokemon", defender: "Pokemon"):
-        self.normal_damage = OneHitKO.one_hit_kill
-        self.critical_damage = OneHitKO.one_hit_kill
+        self.critical_check = OneHitKO.one_hit_kill
         return NormalAttackFlow.normal_use(self, attacker, defender)
