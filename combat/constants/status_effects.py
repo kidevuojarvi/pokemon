@@ -52,7 +52,6 @@ class SleepEffect(StatusEffect):
             if self.turns > self.__max_turns:
                 def call(event_data: EventData):
                     self.pokemon.remove_nonvol_status()
-                    return []
                 return event, [Event(EventType.STATUS_REMOVE, EventData(function=call, defender=self.pokemon))]
 
 

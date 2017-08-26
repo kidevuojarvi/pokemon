@@ -2,9 +2,10 @@ from typing import List
 from combat.constants.move_effects import MoveEffect
 from combat.constants.move_categories import MoveCategory
 from combat.constants.pokemon_types import PokemonType
+from combat.constants.status_effects import StatusEffect
 from Pokemon import Pokemon
 from combat.event import Event, EventData, EventType
-from random import randint
+from random import random, randint
 from combat.util.util import flatten_events
 from combat.constants.pokemon_types import type_multiplier
 
@@ -172,7 +173,7 @@ class NormalAttackFlow:
 
     @staticmethod
     def critical_check(e_d: "EventData"):
-        if e_d.chance is None or e_d.chance < randint(0, 100):
+        if e_d.chance is None or e_d.chance < 100 * random():
             normal_damage = e_d.move.normal_damage
             return Event(EventType.ATTACK_DAMAGE_NORMAL,
                          EventData(defender=e_d.defender, attacker=e_d.attacker, function=normal_damage,
@@ -208,7 +209,7 @@ class NormalAttackFlow:
 
     @staticmethod
     def attack_hit_check(event_data: "EventData"):
-        if event_data.chance is None or event_data.chance >= randint(1, 100):
+        if event_data.chance is None or event_data.chance >= 100 * random():
             return event_data.move.attack_hits(event_data)
         else:
             return Event(EventType.FINAL_ATTACK_MISS,
@@ -217,6 +218,7 @@ class NormalAttackFlow:
 
     @staticmethod
     def normal_use(self: "Move", attacker: "Pokemon", defender: "Pokemon"):
+        attacker.last_move_used = self
         return Event(EventType.ATTACK_ACCURACY_CHECK,
                      EventData(
                           function=self.attack_hit_check,
@@ -243,7 +245,7 @@ class MultiHit:
 
     @staticmethod
     def critical_check(e_d: "EventData"):
-        if e_d.chance is None or e_d.chance < randint(0, 100):
+        if e_d.chance is None or e_d.chance < 100 * random():
             return Event(EventType.ATTACK_DAMAGE_NORMAL,
                          EventData(defender=e_d.defender, attacker=e_d.attacker, function=MultiHit.normal_damage,
                                    type_multiplier=e_d.type_multiplier, other_multiplier=1, move=e_d.move,
@@ -282,6 +284,7 @@ class MultiHit:
 
     @staticmethod
     def multi_hit(self: "Move", attacker: "Pokemon", defender: "Pokemon"):
+        attacker.last_move_used = self
         self.attack_hits = MultiHit.multi_hit_hits
         return NormalAttackFlow.normal_use(self, attacker, defender)
 
@@ -301,4 +304,22 @@ class OneHitKO:
     @staticmethod
     def one_hit_ko_use(self: "Move", attacker: "Pokemon", defender: "Pokemon"):
         self.critical_check = OneHitKO.one_hit_kill
+        attacker.last_move_used = self
+        return NormalAttackFlow.normal_use(self, attacker, defender)
+
+
+class TwoTurn:
+    @staticmethod
+    def turn_one_complete(e_d: "EventData"):
+        e_d.attacker.two_turn_move = e_d.move
+
+    @staticmethod
+    def two_turn_use(self: "Move", attacker: "Pokemon", defender: "Pokemon"):
+        return Event(EventType.TWO_TURN_MOVE,
+                     EventData(function=TwoTurn.turn_one_complete, attacker=attacker, move=self, defender=defender))
+
+    @staticmethod
+    def turn_two(self: "Move", attacker: "Pokemon", defender: "Pokemon"):
+        attacker.two_turn_move = None
+        attacker.last_move_used = self
         return NormalAttackFlow.normal_use(self, attacker, defender)

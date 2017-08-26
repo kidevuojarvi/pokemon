@@ -38,6 +38,7 @@ class EventType(Enum):
     FINAL_FREEZE_INFLICTED = auto()
     ONE_HIT_KILL_DAMAGE = auto()
     FINAL_ONE_HIT_KILL_DAMAGES = auto()
+    TWO_TURN_MOVE = auto()
 
 
 class EventData:

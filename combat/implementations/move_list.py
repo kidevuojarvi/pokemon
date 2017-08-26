@@ -1,4 +1,4 @@
-from combat.Move import Move, MoveCategory, PokemonType, MultiHit, OneHitKO
+from combat.Move import Move, MoveCategory, PokemonType, MultiHit, OneHitKO, TwoTurn
 from combat.constants.move_effects import *
 from typing import TYPE_CHECKING
 from random import randint
@@ -21,6 +21,7 @@ ThunderPunch = Move("Thunder Punch", 75, 100, PokemonType.ELECTRIC, MoveCategory
 Scratch = Move("Scratch", 35, 100, PokemonType.NORMAL, MoveCategory.PHYSICAL)
 ViceGrip = Move("ViceGrip", 55, 100, PokemonType.NORMAL, MoveCategory.PHYSICAL)
 Guillotine = Move("Guillotine", 0, 30, PokemonType.NORMAL, MoveCategory.PHYSICAL, use_function=OneHitKO.one_hit_ko_use)
+RazorWind = Move("Razor Wind", 80, 100, PokemonType.NORMAL, MoveCategory.PHYSICAL, use_function=TwoTurn.two_turn_use, crit_chance=100/8)
 
 Thunderbolt = Move("Thunderbolt", 90, 100, PokemonType.ELECTRIC, MoveCategory.SPECIAL, effects=[MoveInflictParalyzeChance(30)])
 Takedown = Move("Takedown", 90, 85, PokemonType.NORMAL, MoveCategory.PHYSICAL, recoil_percent=25)
