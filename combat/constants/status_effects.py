@@ -43,7 +43,7 @@ class SleepEffect(StatusEffect):
         self.__max_turns = max_turns
 
     def handle(self, event: "Event"):
-        if event.type == EventType.ATTACK_TRIES_TO_HIT:
+        if event.type == EventType.ATTACK_ACCURACY_CHECK:
             pass
             # TODO: Prevent pokemon from doing anything except sleep talk etc.
 
@@ -52,7 +52,6 @@ class SleepEffect(StatusEffect):
             if self.turns > self.__max_turns:
                 def call(event_data: EventData):
                     self.pokemon.remove_nonvol_status()
-                    return []
                 return event, [Event(EventType.STATUS_REMOVE, EventData(function=call, defender=self.pokemon))]
 
 
@@ -61,7 +60,7 @@ class ParalyzeEffect(StatusEffect):
         super().__init__(pokemon)
 
     def handle(self, event: "Event"):
-        if event.type == EventType.ATTACK_TRIES_TO_HIT:
+        if event.type == EventType.ATTACK_ACCURACY_CHECK:
             pass
             # TODO: Paralyze chance!
 
@@ -71,13 +70,23 @@ class BurnEffect(StatusEffect):
         super().__init__(pokemon)
 
     def handle(self, event: "Event"):
-        if event.type == EventType.ATTACK_TRIES_TO_HIT:
+        if event.type == EventType.ATTACK_ACCURACY_CHECK:
             pass
             # TODO: Burn halve attack
 
         elif event.type == EventType.TURN_END:
             # TODO: Do damage
             pass
+
+
+class FreezeEffect(StatusEffect):
+    def __init__(self, pokemon: "Pokemon"):
+        super().__init__(pokemon)
+
+    def handle(self, event: "Event"):
+        if event.type == EventType.ATTACK_ACCURACY_CHECK:
+            pass
+            # TODO: Don't let pokemon attack except if it thaws
 
 
 # Just for copying maths from

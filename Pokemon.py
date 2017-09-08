@@ -28,6 +28,8 @@ class Pokemon:
         self.__vol_statuses = []
         self.__evolve_level = data["evolve_level"]
         self.__evolution = data["evolution"]
+        self.__last_move_used = None
+        self.__two_turn_move = None
 
         # Combat variables
         # Att, Def, SpA, SpD, Spe, Acc, Eva
@@ -70,6 +72,22 @@ class Pokemon:
 
     def get_attack(self):
         return self.calculate_stat(1)
+
+    @property
+    def two_turn_move(self):
+        return self.__two_turn_move
+
+    @two_turn_move.setter
+    def two_turn_move(self, move):
+        self.__two_turn_move = move
+
+    @property
+    def last_move_used(self):
+        return self.__last_move_used
+
+    @last_move_used.setter
+    def last_move_used(self, move):
+        self.__last_move_used = move
 
     def get_defence(self):
         return self.calculate_stat(2)

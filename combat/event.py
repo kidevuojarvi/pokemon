@@ -12,28 +12,39 @@ class EventType(Enum):
     FINAL_SLEEP_INFLICTED = auto()
     PARALYZE_INFLICTING = auto()
     FINAL_PARALYZE_INFLICTED = auto()
-    ATTACK_TRIES_TO_HIT = auto()
-    FINAL_ATTACK_DID_DAMAGE = auto()
-    FINAL_ATTACK_CRIT = auto()
+    ATTACK_ACCURACY_CHECK = auto()
+    ATTACK_CRIT_CHECK = auto()
+    ATTACK_TYPE_MULT_CHECK = auto()
+    ATTACK_DAMAGE_NORMAL = auto()
+    ATTACK_DAMAGE_CRIT = auto()
+    FINAL_ATTACK_CRIT_DAMAGE = auto()
+    FINAL_ATTACK_NORMAL_DAMAGE = auto()
     RECOIL_DAMAGE = auto()
     FINAL_TOOK_RECOIL_DAMAGE = auto()
     ABSORB_HEALTH = auto()
     FINAL_HEALTH_ABSORBED = auto()
     STATUS_REMOVE = auto()
     TURN_END = auto()
-    FINAL_ATTACK_MISSES = auto()
+    FINAL_ATTACK_MISS = auto()
     ATTACK_DOES_EXACT_DAMAGE = auto()
-    ATTACK_FAILED = auto()
+    FINAL_ATTACK_FAIL = auto()
     MULTI_HIT_TIMES = auto()
     BURN_INFLICTING = auto()
     FINAL_BURN_INFLICTED = auto()
-    ATTACK_HITS = auto()
+    FINAL_MOVE_SUPER_EFFECTIVE = auto()
+    FINAL_MOVE_NOT_VERY_EFFECTIVE = auto()
+    FINAL_MOVE_DOESNT_AFFECT = auto()
+    FREEZE_INFLICTING = auto()
+    FINAL_FREEZE_INFLICTED = auto()
+    ONE_HIT_KILL_DAMAGE = auto()
+    FINAL_ONE_HIT_KILL_DAMAGES = auto()
+    TWO_TURN_MOVE = auto()
 
 
 class EventData:
-    def __init__(self, function: Callable[["EventData"], Any]=lambda ed: None, field=None, multiplier: float=None,
-                 defender: "Pokemon"=None, attacker: "Pokemon"=None, damage=0, chance: float=None, crit_chance=None,
-                 move: "Move"=None):
+    def __init__(self, function: Callable[["EventData"], Any]=lambda ed: None, field=None, type_multiplier: float=None,
+                 defender: "Pokemon"=None, attacker: "Pokemon"=None, damage=0, chance: float=None,
+                 move: "Move"=None, other_multiplier: float=None):
         """
         Function is a function which, when called, executes the event
         :param function:
@@ -43,14 +54,14 @@ class EventData:
         :param damage:
         :param chance:
         """
-        self.__multiplier = multiplier
+        self.__type_multiplier = type_multiplier
+        self.__other_multiplier = other_multiplier
         self.__field = field
         self.__defendant = defender
         self.__attacker = attacker
         self.__def_damage = damage
         self.__chance = chance
         self.__call = function
-        self.__crit_chance = crit_chance
         self.__move = move
 
     def call(self):
@@ -77,12 +88,12 @@ class EventData:
         return self.__chance
 
     @property
-    def multiplier(self):
-        return self.__multiplier
+    def type_multiplier(self):
+        return self.__type_multiplier
 
     @property
-    def crit_chance(self):
-        return self.__crit_chance
+    def other_multiplier(self):
+        return self.__other_multiplier
 
     @property
     def move(self):
@@ -100,4 +111,3 @@ class Event:
     @property
     def type(self):
         return self.__type
-
