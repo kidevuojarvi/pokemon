@@ -96,7 +96,7 @@ class GUI:
         if "space" in self.__held_keys and self.key_check("space"):
             self.key_disable("space")
             self.__state = "overworld"
-            self.__textbox.delete_box(self.__canvas)
+            self.__textbox.delete_box()
             self.refocus()
 
         # Toggle between start menu and overworld

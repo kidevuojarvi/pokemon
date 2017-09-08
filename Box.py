@@ -53,6 +53,6 @@ class Box:
             self.__contents.append(self.__canvas.create_image((16 * ul[0] + 8) * self.__zoom, (16 * (i + ul[1])) * self.__zoom, image=self.__images["l_b"]))
             self.__contents.append(self.__canvas.create_image((16 * ur[0] + 8) * self.__zoom, (16 * (i + ul[1])) * self.__zoom, image=self.__images["r_b"]))
 
-    def delete_box(self, canvas):
+    def delete_box(self):
         for image in self.__contents:
-            canvas.delete(image)
+            self.__canvas.delete(image)
