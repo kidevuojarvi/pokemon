@@ -5,7 +5,7 @@ from Textbox import Textbox
 from Menubox import Menubox
 from Walk_animation import Walk_animation
 
-ZOOM = 3
+ZOOM = 5
 # Gameboy Screen is 10x9 tiles, and the player recides at 4, 4 while the world moves
 # The overworld sprites are 16x16 pixels, so width and height are hardcoded, then
 # adjusted with the ZOOM-factor
