@@ -322,9 +322,11 @@ class GUI:
         # TODO: A few screen flashes here
         for i in range(20):
             for j in range(9):
-                self.__mw.after(ANIMATION_DELAY * i, self.battle_start_animation_draw, (4 + i * 8) * ZOOM, (4 + 16 * j) * ZOOM, "t_black")
-                self.__mw.after(ANIMATION_DELAY * i, self.battle_start_animation_draw, (156 - i * 8) * ZOOM, (4 + 16 * j + 8) * ZOOM, "t_black")
-
+                self.__mw.after(ANIMATION_DELAY * i, self.battle_start_animation_draw, (4 + i * 8) * ZOOM,
+                                (4 + 16 * j) * ZOOM, "t_black")
+                self.__mw.after(ANIMATION_DELAY * i, self.battle_start_animation_draw, (156 - i * 8) * ZOOM,
+                                (4 + 16 * j + 8) * ZOOM, "t_black")
+        i = 20
         self.__mw.after(ANIMATION_DELAY * i, self.animation_over)
 
     def battle_start_animation_draw(self, x, y, image):
