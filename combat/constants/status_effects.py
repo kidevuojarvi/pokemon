@@ -3,6 +3,7 @@ from random import randint
 if TYPE_CHECKING:
     from Pokemon import Pokemon
     from combat.event import Event, EventType, EventData
+    from combat.Move import Move
 
 
 class StatusEffect:
@@ -87,6 +88,23 @@ class FreezeEffect(StatusEffect):
         if event.type == EventType.ATTACK_ACCURACY_CHECK:
             pass
             # TODO: Don't let pokemon attack except if it thaws
+
+
+class TwoTurnMoveTrap(StatusEffect):
+    """
+    Traps attacker into a two turn move, like solar beam
+    """
+
+    def __init__(self, attacker: "Pokemon", move: "Move", turn_two):
+        self.__move = move
+        self.__turn_two = turn_two
+        super().__init__(attacker)
+
+    def handle(self, event: "Event") -> ("Event", List["Event"]):
+        # TODO: Once we have implemented actual turn action check / input,
+        # intercept that here, and choose attacking with the move
+        self.__turn_two(event.data.move, event.data.attacker, event.data.defender)
+        pass
 
 
 # Just for copying maths from

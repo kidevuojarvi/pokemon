@@ -111,3 +111,7 @@ class Event:
     @property
     def type(self):
         return self.__type
+
+    @property
+    def data(self):
+        return self.__data

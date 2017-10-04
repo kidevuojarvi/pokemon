@@ -2,7 +2,7 @@ from typing import List
 from combat.constants.move_effects import MoveEffect
 from combat.constants.move_categories import MoveCategory
 from combat.constants.pokemon_types import PokemonType
-from combat.constants.status_effects import StatusEffect
+from combat.constants.status_effects import *
 from Pokemon import Pokemon
 from combat.event import Event, EventData, EventType
 from random import random, randint
@@ -311,7 +311,7 @@ class OneHitKO:
 class TwoTurn:
     @staticmethod
     def turn_one_complete(e_d: "EventData"):
-        e_d.attacker.two_turn_move = e_d.move
+        e_d.attacker.add_volatile_status(TwoTurnMoveTrap(e_d.attacker, e_d.move, TwoTurn.turn_two))
 
     @staticmethod
     def two_turn_use(self: "Move", attacker: "Pokemon", defender: "Pokemon"):

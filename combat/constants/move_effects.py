@@ -5,6 +5,7 @@ from combat.event import Event, EventData, EventType
 from combat.constants.status_effects import *
 if TYPE_CHECKING:
     from combat.combat import Combat
+    from combat.Move import Move
 
 
 
